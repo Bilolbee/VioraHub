@@ -25,9 +25,9 @@ export function StatsCounter({ value, suffix, label }: StatsCounterProps) {
   }, [inView, value]);
 
   return (
-    <div ref={ref} className="rounded-2xl border border-borderSubtle bg-card p-6">
-      <p className="text-4xl font-semibold">
-        <span>{count}</span>
+    <div ref={ref} className="surface surface-hover rounded-3xl p-6">
+      <p className="text-4xl font-semibold md:text-5xl">
+        <span className="bg-gradient-to-r from-white to-accentSoft bg-clip-text text-transparent">{count}</span>
         <span>{suffix}</span>
       </p>
       <p className="mt-3 text-sm text-muted">{label}</p>

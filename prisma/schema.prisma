@@ -1,0 +1,74 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  editor
+  reviewer
+  admin
+}
+
+enum Environment {
+  staging
+  production
+}
+
+model User {
+  id           String    @id @default(cuid())
+  email        String    @unique
+  name         String
+  role         Role
+  passwordHash String
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  sessions     Session[]
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  userId    String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
+}
+
+model ContentSnapshot {
+  id          String      @id @default(cuid())
+  environment Environment @unique
+  content     Json
+  version     Int
+  updatedAt   DateTime
+  updatedBy   String
+}
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  actorEmail String
+  actorRole  String
+  action     String
+  details    String
+  createdAt  DateTime @default(now())
+
+  @@index([createdAt])
+}
+
+model Lead {
+  id            String   @id @default(cuid())
+  name          String
+  businessType  String
+  neededService String
+  budget        String
+  phone         String
+  createdAt     DateTime @default(now())
+
+  @@index([createdAt])
+}

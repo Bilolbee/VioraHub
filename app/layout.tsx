@@ -1,31 +1,37 @@
 import type { Metadata } from "next";
-import { Manrope } from "next/font/google";
+import { Space_Grotesk } from "next/font/google";
 import "./globals.css";
 import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/footer";
 import { FloatingTelegram } from "@/components/floating-telegram";
+import { getPublishedContent } from "@/lib/cms-store";
 
-const manrope = Manrope({ subsets: ["latin"] });
+const spaceGrotesk = Space_Grotesk({ subsets: ["latin"] });
 
-export const metadata: Metadata = {
-  title: "Viora Hub | Premium veb va raqamli agentlik",
-  description:
-    "Zamonaviy bizneslar uchun veb-sayt, Telegram bot, marketing va osish tizimlari.",
-  metadataBase: new URL("https://viorahub.com"),
-  openGraph: {
-    title: "Viora Hub | Premium veb va raqamli agentlik",
-    description:
-      "Zamonaviy bizneslar uchun veb-sayt, Telegram bot, marketing va osish tizimlari.",
-    images: ["/og-image.svg"]
-  }
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const content = await getPublishedContent();
+  return {
+    title: content.seo.title,
+    description: content.seo.description,
+    metadataBase: new URL("https://viorahub.com"),
+    openGraph: {
+      title: content.seo.ogTitle,
+      description: content.seo.ogDescription,
+      images: ["/og-image.svg"]
+    }
+  };
+}
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export const revalidate = 0;
+
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const content = await getPublishedContent();
+
   return (
     <html lang="uz">
-      <body className={manrope.className}>
-        <Navbar />
-        <main className="mx-auto w-full max-w-7xl px-5">{children}</main>
+      <body className={spaceGrotesk.className}>
+        <Navbar navLinks={content.nav} />
+        <main className="container-shell">{children}</main>
         <Footer />
         <FloatingTelegram />
       </body>

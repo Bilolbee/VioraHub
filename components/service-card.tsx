@@ -10,13 +10,17 @@ type ServiceCardProps = {
 export function ServiceCard({ title, description }: ServiceCardProps) {
   return (
     <motion.article
-      whileHover={{ y: -8 }}
-      transition={{ duration: 0.2 }}
-      className="group rounded-2xl border border-borderSubtle bg-card p-6"
+      whileHover={{ y: -10 }}
+      transition={{ duration: 0.25 }}
+      className="surface surface-hover group rounded-3xl p-7"
     >
-      <h3 className="text-xl font-semibold">{title}</h3>
-      <p className="mt-3 text-sm leading-7 text-muted">{description}</p>
-      <div className="mt-6 h-px w-full bg-gradient-to-r from-accent/0 via-accent to-accent/0 opacity-0 transition group-hover:opacity-100" />
+      <div className="mb-5 flex items-center justify-between">
+        <span className="h-2 w-2 rounded-full bg-accentSoft" />
+        <span className="text-[11px] uppercase tracking-[0.18em] text-muted">Service</span>
+      </div>
+      <h3 className="text-2xl font-semibold leading-tight">{title}</h3>
+      <p className="mt-4 text-sm leading-7 text-muted">{description}</p>
+      <div className="mt-8 h-px w-full bg-gradient-to-r from-accent/0 via-accent to-accent/0 opacity-40 transition group-hover:opacity-100" />
     </motion.article>
   );
 }

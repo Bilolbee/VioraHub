@@ -2,26 +2,33 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { navLinks } from "@/data/site";
+import { NavItem } from "@/lib/cms-types";
 
-export function Navbar() {
+type NavbarProps = {
+  navLinks: NavItem[];
+};
+
+export function Navbar({ navLinks }: NavbarProps) {
   const pathname = usePathname();
 
   return (
-    <header className="sticky top-0 z-50 border-b border-borderSubtle bg-background/80 backdrop-blur-xl">
-      <div className="mx-auto flex h-16 w-full max-w-7xl items-center justify-between px-5">
-        <Link href="/" className="text-lg font-semibold tracking-[0.2em]">
-          VIORA HUB
+    <header className="sticky top-0 z-50 border-b border-white/10 bg-[#07070d]/80 backdrop-blur-2xl">
+      <div className="container-shell flex h-[74px] items-center justify-between">
+        <Link href="/" className="group inline-flex items-center gap-3">
+          <span className="h-2.5 w-2.5 rounded-full bg-accent shadow-glow" />
+          <span className="text-sm font-bold tracking-[0.28em] text-white md:text-base">VIORA HUB</span>
         </Link>
-        <nav className="hidden items-center gap-6 md:flex">
+        <nav className="hidden items-center gap-2 rounded-full border border-white/10 bg-white/[0.03] p-1.5 md:flex">
           {navLinks.map((link) => {
             const active = pathname === link.href;
             return (
               <Link
                 key={link.href}
                 href={link.href}
-                className={`text-sm transition ${
-                  active ? "text-white" : "text-muted hover:text-white"
+                className={`rounded-full px-4 py-2 text-sm transition ${
+                  active
+                    ? "bg-white/10 text-white"
+                    : "text-muted hover:bg-white/5 hover:text-white"
                 }`}
               >
                 {link.label}
@@ -31,7 +38,7 @@ export function Navbar() {
         </nav>
         <Link
           href="/contact"
-          className="rounded-full border border-accent px-4 py-2 text-xs font-semibold uppercase tracking-wider transition hover:bg-accent hover:shadow-glow"
+          className="rounded-full border border-accent/50 bg-accent/20 px-4 py-2 text-xs font-semibold uppercase tracking-[0.16em] text-white transition hover:border-accent hover:bg-accent/40 hover:shadow-glow"
         >
           Loyihani boshlash
         </Link>
