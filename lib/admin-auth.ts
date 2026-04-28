@@ -8,6 +8,7 @@ import { db } from "@/lib/db";
 
 export const SESSION_COOKIE = "vh_session";
 const sessionHours = 8;
+const maxSessionsPerUser = 5;
 
 export type AuthSession = {
   token: string;
@@ -31,6 +32,10 @@ export async function findUser(login: string, password: string) {
 }
 
 export async function createSessionForUser(userId: string): Promise<{ token: string; expiresAt: Date }> {
+  await db.session.deleteMany({
+    where: { expiresAt: { lte: new Date() } }
+  });
+
   const token = randomBytes(32).toString("hex");
   const expiresAt = new Date(Date.now() + sessionHours * 60 * 60 * 1000);
   await db.session.create({
@@ -40,6 +45,17 @@ export async function createSessionForUser(userId: string): Promise<{ token: str
       expiresAt
     }
   });
+
+  const sessions = await db.session.findMany({
+    where: { userId },
+    orderBy: { createdAt: "desc" },
+    select: { id: true }
+  });
+  if (sessions.length > maxSessionsPerUser) {
+    const toDelete = sessions.slice(maxSessionsPerUser).map((session) => session.id);
+    await db.session.deleteMany({ where: { id: { in: toDelete } } });
+  }
+
   return { token, expiresAt };
 }
 
@@ -76,7 +92,8 @@ export async function readSessionFromRequest(req: NextRequest) {
 }
 
 export async function readSessionFromCookies() {
-  const token = cookies().get(SESSION_COOKIE)?.value;
+  const cookieStore = await cookies();
+  const token = cookieStore.get(SESSION_COOKIE)?.value;
   return resolveSessionByToken(token);
 }
 

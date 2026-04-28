@@ -32,9 +32,25 @@ async function ensureSnapshot(environment: Environment) {
 }
 
 async function main() {
-  await ensureUser("admin@viorahub.com", "Bilol", "admin", "666");
-  await ensureUser("editor@viorahub.com", "Editor", "editor", "ChangeMe123!");
-  await ensureUser("reviewer@viorahub.com", "Reviewer", "reviewer", "ChangeMe123!");
+  const adminEmail = process.env.ADMIN_EMAIL || "admin@viorahub.com";
+  const adminLogin = process.env.ADMIN_LOGIN || "Bilol";
+  const adminPassword = process.env.ADMIN_PASSWORD || "666";
+  const editorEmail = process.env.EDITOR_EMAIL || "editor@viorahub.com";
+  const editorPassword = process.env.EDITOR_PASSWORD || "ChangeMe123!";
+  const reviewerEmail = process.env.REVIEWER_EMAIL || "reviewer@viorahub.com";
+  const reviewerPassword = process.env.REVIEWER_PASSWORD || "ChangeMe123!";
+
+  if (process.env.NODE_ENV === "production" && adminPassword === "666") {
+    throw new Error("ADMIN_PASSWORD productionda default bo'lishi mumkin emas.");
+  }
+
+  if (adminPassword === "666") {
+    console.warn("Warning: ADMIN_PASSWORD default ('666'). Productionga chiqishdan oldin almashtiring.");
+  }
+
+  await ensureUser(adminEmail, adminLogin, "admin", adminPassword);
+  await ensureUser(editorEmail, "Editor", "editor", editorPassword);
+  await ensureUser(reviewerEmail, "Reviewer", "reviewer", reviewerPassword);
 
   await ensureSnapshot(Environment.staging);
   await ensureSnapshot(Environment.production);

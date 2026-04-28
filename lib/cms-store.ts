@@ -4,73 +4,77 @@ import { db } from "@/lib/db";
 import { defaultContent } from "@/lib/cms-defaults";
 import { AuditEntry, Role, SiteContent } from "@/lib/cms-types";
 
+const shortText = z.string().trim().min(1).max(140);
+const mediumText = z.string().trim().min(1).max(300);
+const longText = z.string().trim().min(1).max(1200);
+
 const siteContentSchema: z.ZodType<SiteContent> = z.object({
   version: z.number().int().nonnegative(),
-  updatedAt: z.string(),
-  updatedBy: z.string(),
+  updatedAt: z.string().max(120),
+  updatedBy: z.string().max(180),
   hero: z.object({
-    badge: z.string(),
-    heading: z.string(),
-    subtitle: z.string(),
-    primaryCta: z.string(),
-    secondaryCta: z.string()
+    badge: shortText,
+    heading: mediumText,
+    subtitle: longText,
+    primaryCta: shortText,
+    secondaryCta: shortText
   }),
   stats: z.array(
     z.object({
-      label: z.string(),
+      label: shortText,
       value: z.number(),
-      suffix: z.string()
+      suffix: z.string().trim().max(24)
     })
-  ),
+  ).max(24),
   services: z.array(
     z.object({
-      title: z.string(),
-      description: z.string()
+      title: shortText,
+      description: longText
     })
-  ),
+  ).max(48),
   portfolio: z.array(
     z.object({
-      name: z.string(),
-      category: z.string(),
-      result: z.string(),
-      tools: z.string()
+      name: shortText,
+      category: shortText,
+      result: longText,
+      tools: mediumText
     })
-  ),
-  whyUs: z.array(z.string()),
+  ).max(96),
+  whyUs: z.array(shortText).max(24),
   about: z.object({
-    kicker: z.string(),
-    title: z.string(),
-    subtitle: z.string(),
-    mission: z.string(),
-    approach: z.string(),
-    promise: z.string()
+    kicker: shortText,
+    title: mediumText,
+    subtitle: longText,
+    mission: longText,
+    approach: longText,
+    promise: longText
   }),
   testimonials: z.array(
     z.object({
-      name: z.string(),
-      role: z.string(),
-      quote: z.string()
+      name: shortText,
+      role: shortText,
+      quote: longText
     })
-  ),
+  ).max(48),
   contact: z.object({
-    telegram: z.string(),
-    whatsapp: z.string(),
-    phone: z.string(),
-    email: z.string(),
-    instagram: z.string()
+    telegram: z.string().trim().min(1).max(300),
+    whatsapp: z.string().trim().min(1).max(300),
+    phone: z.string().trim().min(5).max(40),
+    email: z.string().trim().email().max(180),
+    instagram: z.string().trim().min(1).max(120)
   }),
   seo: z.object({
-    title: z.string(),
-    description: z.string(),
-    ogTitle: z.string(),
-    ogDescription: z.string()
+    title: mediumText,
+    description: longText,
+    ogTitle: mediumText,
+    ogDescription: longText
   }),
   nav: z.array(
     z.object({
-      href: z.string(),
-      label: z.string()
+      href: z.string().trim().min(1).max(180),
+      label: shortText
     })
-  )
+  ).max(24)
 });
 
 async function ensureSnapshot(environment: Environment) {

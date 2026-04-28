@@ -28,11 +28,14 @@ Open:
 - Website: `http://localhost:3000`
 - Admin login: `http://localhost:3000/admin/login`
 
-## Default Admin Users (change immediately)
+## Admin Credentials (seed orqali)
 
-- `admin@viorahub.com` / `ChangeMe123!`
-- `editor@viorahub.com` / `ChangeMe123!`
-- `reviewer@viorahub.com` / `ChangeMe123!`
+Seed script `.env` dagi qiymatlardan foydalanadi:
+- `ADMIN_EMAIL`, `ADMIN_LOGIN`, `ADMIN_PASSWORD`
+- `EDITOR_EMAIL`, `EDITOR_PASSWORD`
+- `REVIEWER_EMAIL`, `REVIEWER_PASSWORD`
+
+Default fallbacklar bor, lekin productionda kuchli parollarni majburiy o'rnating.
 
 ## Roles
 
@@ -42,10 +45,17 @@ Open:
 
 ## Workflow
 
-1. Editor logs in and edits staging JSON in admin panel.
-2. Reviewer/Admin checks and clicks publish.
-3. Production content is replaced and version increased.
-4. Audit log keeps actions for traceability.
+1. Editor/Admin staging kontentni dashboard orqali tahrirlaydi.
+2. Staging saqlanadi va auditga yoziladi.
+3. Reviewer/Admin productionga chiqaradi.
+4. Version oshadi, audit log saqlanadi.
+
+## Security Notes
+
+- Login urinishlari 15 daqiqalik oynada rate-limited.
+- Session cookie `httpOnly` va `sameSite=lax`.
+- Seed productionda zaif admin parolni bloklaydi.
+- Contact form `zod` validation bilan DB ga yoziladi.
 
 ## Notes
 
