@@ -24,55 +24,39 @@ export function ContactFormClient() {
     }
 
     form.reset();
-    setStatus("Sorov yuborildi. Tez orada siz bilan boglanamiz.");
+    setStatus("So'rov yuborildi. Tez orada siz bilan bog'lanamiz.");
   }
 
   return (
-    <form onSubmit={handleSubmit} className="surface mt-8 rounded-[28px] p-6 md:p-8">
-      <div className="grid gap-4 md:grid-cols-2">
+    <form onSubmit={handleSubmit} className="section-shell rounded-[28px] p-6 md:p-8">
+      <p className="text-xs uppercase tracking-[0.16em] text-accentSoft">Inquiry form</p>
+      <h3 className="mt-2 text-2xl font-semibold text-white">Loyiha briefini yuboring</h3>
+      <p className="mt-2 text-sm text-muted">Jamoamiz sizga mos ijro modeli va taxminiy timeline yuboradi.</p>
+
+      <div className="mt-6 grid gap-4 md:grid-cols-2">
         <label className="text-sm text-muted">
           Ism
-          <input
-            required
-            name="name"
-            className="mt-2 w-full rounded-xl border border-white/15 bg-black/20 px-4 py-3 text-white outline-none transition focus:border-accent"
-          />
+          <input required name="name" className="admin-input mt-2" />
         </label>
         <label className="text-sm text-muted">
           Biznes turi
-          <input
-            required
-            name="businessType"
-            className="mt-2 w-full rounded-xl border border-white/15 bg-black/20 px-4 py-3 text-white outline-none transition focus:border-accent"
-          />
+          <input required name="businessType" className="admin-input mt-2" />
         </label>
         <label className="text-sm text-muted">
           Kerakli xizmat
-          <input
-            required
-            name="neededService"
-            className="mt-2 w-full rounded-xl border border-white/15 bg-black/20 px-4 py-3 text-white outline-none transition focus:border-accent"
-          />
+          <input required name="neededService" className="admin-input mt-2" />
         </label>
         <label className="text-sm text-muted">
           Byudjet
-          <input
-            required
-            name="budget"
-            className="mt-2 w-full rounded-xl border border-white/15 bg-black/20 px-4 py-3 text-white outline-none transition focus:border-accent"
-          />
+          <input required name="budget" className="admin-input mt-2" />
         </label>
         <label className="text-sm text-muted md:col-span-2">
           Telefon
-          <input
-            required
-            name="phone"
-            className="mt-2 w-full rounded-xl border border-white/15 bg-black/20 px-4 py-3 text-white outline-none transition focus:border-accent"
-          />
+          <input required name="phone" className="admin-input mt-2" />
         </label>
       </div>
-      <button type="submit" className="mt-6 rounded-full bg-accent px-7 py-3 text-sm font-semibold transition hover:shadow-glow">
-        Sorov yuborish
+      <button type="submit" className="btn-primary mt-6">
+        So&apos;rov yuborish
       </button>
       {status ? <p className="mt-3 text-sm text-muted">{status}</p> : null}
     </form>

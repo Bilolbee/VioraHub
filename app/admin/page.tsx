@@ -63,7 +63,7 @@ function SectionCard({
   children: React.ReactNode;
 }) {
   return (
-    <section className="surface rounded-3xl p-6">
+    <section className="premium-panel rounded-[28px] p-6">
       <h3 className="text-xl font-semibold text-white">{title}</h3>
       {subtitle ? <p className="mt-2 text-sm text-muted">{subtitle}</p> : null}
       <div className="mt-4">{children}</div>
@@ -88,7 +88,7 @@ function TextInput({
       disabled={disabled}
       placeholder={placeholder}
       onChange={(event) => onChange(event.target.value)}
-      className="w-full rounded-xl border border-white/15 bg-black/25 px-4 py-3 text-sm text-white outline-none transition focus:border-accent disabled:cursor-not-allowed disabled:opacity-60"
+      className="admin-input disabled:cursor-not-allowed disabled:opacity-60"
     />
   );
 }
@@ -113,7 +113,7 @@ function TextAreaInput({
       disabled={disabled}
       placeholder={placeholder}
       onChange={(event) => onChange(event.target.value)}
-      className="w-full rounded-xl border border-white/15 bg-black/25 px-4 py-3 text-sm text-white outline-none transition focus:border-accent disabled:cursor-not-allowed disabled:opacity-60"
+      className="admin-input disabled:cursor-not-allowed disabled:opacity-60"
     />
   );
 }
@@ -129,7 +129,7 @@ function RowActions({
     <button
       disabled={disabled}
       onClick={onRemove}
-      className="rounded-xl border border-red-400/40 px-4 py-2 text-xs font-semibold uppercase tracking-[0.12em] text-red-300 disabled:cursor-not-allowed disabled:opacity-50"
+      className="rounded-xl border border-red-400/40 bg-red-500/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.12em] text-red-200 disabled:cursor-not-allowed disabled:opacity-50"
     >
       Olib tashlash
     </button>
@@ -298,63 +298,92 @@ export default function AdminDashboardPage() {
     <div className="pb-24 pt-8">
       <header className="mb-6 flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-semibold tracking-tight">Control Center</h1>
+          <p className="badge-pill mb-3">Admin dashboard</p>
+          <h1 className="text-3xl font-semibold tracking-tight md:text-4xl">
+            <span className="text-gradient">Control Center</span>
+          </h1>
           <p className="mt-2 text-sm text-muted">
             {data.user.name} ({data.user.role}) - {data.user.email}
           </p>
         </div>
         <div className="flex gap-2">
-          <button onClick={loadAll} className="rounded-full border border-white/15 px-4 py-2 text-sm hover:border-white">
+          <button onClick={loadAll} className="btn-secondary px-4 py-2">
             Yangilash
           </button>
-          <button onClick={logout} className="rounded-full border border-white/15 px-4 py-2 text-sm hover:border-white">
+          <button onClick={logout} className="btn-secondary px-4 py-2">
             Chiqish
           </button>
         </div>
       </header>
 
-      <div className="mb-6 grid gap-4 md:grid-cols-4">
-        <div className="surface rounded-2xl p-4">
-          <p className="text-xs uppercase tracking-[0.14em] text-accentSoft">Staging versiya</p>
-          <p className="mt-2 text-sm text-muted">{data.staging.version}</p>
-        </div>
-        <div className="surface rounded-2xl p-4">
-          <p className="text-xs uppercase tracking-[0.14em] text-accentSoft">Production versiya</p>
-          <p className="mt-2 text-sm text-muted">{data.production.version}</p>
-        </div>
-        <div className="surface rounded-2xl p-4">
-          <p className="text-xs uppercase tracking-[0.14em] text-accentSoft">Leadlar</p>
-          <p className="mt-2 text-sm text-muted">{leads.length} ta</p>
-        </div>
-        <div className="surface rounded-2xl p-4">
-          <p className="text-xs uppercase tracking-[0.14em] text-accentSoft">Holat</p>
-          <p className={`mt-2 text-sm ${dirty ? "text-amber-300" : "text-emerald-300"}`}>
-            {dirty ? "Saqlanmagan ozgarishlar bor" : "Hamma narsa sync"}
-          </p>
-        </div>
-      </div>
+      <div className="grid gap-6 lg:grid-cols-[280px_1fr]">
+        <aside className="space-y-4 lg:sticky lg:top-[96px] lg:self-start">
+          <div className="premium-panel rounded-3xl p-4">
+            <p className="text-xs uppercase tracking-[0.16em] text-accentSoft">Workspace</p>
+            <div className="mt-4 grid gap-3">
+              <div className="premium-panel-soft rounded-xl p-3">
+                <p className="text-[11px] uppercase tracking-[0.14em] text-muted">Staging</p>
+                <p className="mt-1 text-sm text-white">v{data.staging.version}</p>
+              </div>
+              <div className="premium-panel-soft rounded-xl p-3">
+                <p className="text-[11px] uppercase tracking-[0.14em] text-muted">Production</p>
+                <p className="mt-1 text-sm text-white">v{data.production.version}</p>
+              </div>
+              <div className="premium-panel-soft rounded-xl p-3">
+                <p className="text-[11px] uppercase tracking-[0.14em] text-muted">Leadlar</p>
+                <p className="mt-1 text-sm text-white">{leads.length} ta</p>
+              </div>
+              <div className="premium-panel-soft rounded-xl p-3">
+                <p className="text-[11px] uppercase tracking-[0.14em] text-muted">Holat</p>
+                <p className={`mt-1 text-sm ${dirty ? "text-amber-300" : "text-emerald-300"}`}>
+                  {dirty ? "Unsaved o&apos;zgarish bor" : "Hamma narsa sync"}
+                </p>
+              </div>
+            </div>
+          </div>
 
-      <div className="sticky top-[86px] z-40 mb-6 rounded-2xl border border-white/15 bg-[#0a0a12]/90 p-3 backdrop-blur">
+          <div className="premium-panel rounded-3xl p-3">
+            <p className="mb-2 px-2 text-[11px] uppercase tracking-[0.16em] text-muted">Bo&apos;limlar</p>
+            <div className="grid gap-2">
+              {tabs.map((tab) => (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`w-full rounded-xl px-3 py-2 text-left text-sm font-medium transition ${
+                    activeTab === tab.id
+                      ? "border border-accent bg-accent/20 text-white"
+                      : "border border-white/10 bg-white/[0.02] text-muted hover:text-white"
+                  }`}
+                >
+                  {tab.label}
+                </button>
+              ))}
+            </div>
+          </div>
+        </aside>
+
+        <section className="space-y-6">
+      <div className="sticky top-[90px] z-40 mb-6 rounded-2xl border border-white/15 bg-[#0b0b13]/92 p-3 backdrop-blur-xl">
         <div className="grid gap-3 lg:grid-cols-[1fr_auto_auto_auto_auto]">
           <TextInput value={saveNote} onChange={setSaveNote} disabled={!canEdit} />
           <button
             disabled={!canSave}
             onClick={saveDraft}
-            className="rounded-full bg-accent px-5 py-3 text-sm font-semibold disabled:cursor-not-allowed disabled:opacity-50"
+            className="btn-primary disabled:cursor-not-allowed disabled:opacity-50"
           >
             {saving ? "Saqlanmoqda..." : "Stagingni saqlash"}
           </button>
           <button
             disabled={!dirty || saving}
             onClick={discardChanges}
-            className="rounded-full border border-white/15 px-5 py-3 text-sm font-semibold disabled:cursor-not-allowed disabled:opacity-50"
+            className="btn-secondary disabled:cursor-not-allowed disabled:opacity-50"
           >
             Bekor qilish
           </button>
           <button
             disabled={!canPublishNow}
             onClick={publish}
-            className="rounded-full border border-accent px-5 py-3 text-sm font-semibold disabled:cursor-not-allowed disabled:opacity-50"
+            className="btn-secondary border-accent/60 bg-accent/15 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {publishing ? "Publish..." : "Productionga chiqarish"}
           </button>
@@ -372,22 +401,6 @@ export default function AdminDashboardPage() {
           </ul>
         </div>
       ) : null}
-
-      <div className="mb-6 flex flex-wrap gap-2">
-        {tabs.map((tab) => (
-          <button
-            key={tab.id}
-            onClick={() => setActiveTab(tab.id)}
-            className={`rounded-full px-4 py-2 text-sm font-medium transition ${
-              activeTab === tab.id
-                ? "border border-accent bg-accent/20 text-white"
-                : "border border-white/15 bg-white/[0.02] text-muted hover:text-white"
-            }`}
-          >
-            {tab.label}
-          </button>
-        ))}
-      </div>
 
       {activeTab === "general" ? (
         <div className="grid gap-6 lg:grid-cols-2">
@@ -428,7 +441,7 @@ export default function AdminDashboardPage() {
         <SectionCard title="Portfolio boshqaruvi" subtitle="Qoshish, tahrirlash, ochirish">
           <div className="space-y-4">
             {draft.portfolio.map((item, index) => (
-              <div key={`${item.name}-${index}`} className="rounded-2xl border border-white/10 bg-black/20 p-4">
+              <div key={`${item.name}-${index}`} className="premium-panel-soft rounded-2xl p-4">
                 <div className="mb-3 flex items-center justify-between">
                   <p className="text-sm font-semibold text-white">Portfolio #{index + 1}</p>
                   <RowActions disabled={!canEdit} onRemove={() => updateDraft((c) => ({ ...c, portfolio: c.portfolio.filter((_, i) => i !== index) }))} />
@@ -443,7 +456,7 @@ export default function AdminDashboardPage() {
                 </div>
               </div>
             ))}
-            <button disabled={!canEdit} onClick={() => updateDraft((c) => ({ ...c, portfolio: [...c.portfolio, { name: "", category: "", result: "", tools: "" }] }))} className="rounded-full border border-accent px-5 py-2 text-sm font-semibold disabled:opacity-50">
+            <button disabled={!canEdit} onClick={() => updateDraft((c) => ({ ...c, portfolio: [...c.portfolio, { name: "", category: "", result: "", tools: "" }] }))} className="btn-secondary border-accent/60 bg-accent/15 px-5 py-2 disabled:opacity-50">
               Yangi portfolio qoshish
             </button>
           </div>
@@ -454,7 +467,7 @@ export default function AdminDashboardPage() {
         <SectionCard title="Xizmatlar">
           <div className="space-y-4">
             {draft.services.map((item, index) => (
-              <div key={`${item.title}-${index}`} className="rounded-2xl border border-white/10 bg-black/20 p-4">
+              <div key={`${item.title}-${index}`} className="premium-panel-soft rounded-2xl p-4">
                 <div className="mb-3 flex items-center justify-between">
                   <p className="text-sm font-semibold text-white">Xizmat #{index + 1}</p>
                   <RowActions disabled={!canEdit} onRemove={() => updateDraft((c) => ({ ...c, services: c.services.filter((_, i) => i !== index) }))} />
@@ -465,7 +478,7 @@ export default function AdminDashboardPage() {
                 </div>
               </div>
             ))}
-            <button disabled={!canEdit} onClick={() => updateDraft((c) => ({ ...c, services: [...c.services, { title: "", description: "" }] }))} className="rounded-full border border-accent px-5 py-2 text-sm font-semibold disabled:opacity-50">
+            <button disabled={!canEdit} onClick={() => updateDraft((c) => ({ ...c, services: [...c.services, { title: "", description: "" }] }))} className="btn-secondary border-accent/60 bg-accent/15 px-5 py-2 disabled:opacity-50">
               Yangi xizmat qoshish
             </button>
           </div>
@@ -477,7 +490,7 @@ export default function AdminDashboardPage() {
           <SectionCard title="Statistikalar">
             <div className="space-y-4">
               {draft.stats.map((item, index) => (
-                <div key={`${item.label}-${index}`} className="rounded-2xl border border-white/10 bg-black/20 p-4">
+                <div key={`${item.label}-${index}`} className="premium-panel-soft rounded-2xl p-4">
                   <div className="grid gap-3 md:grid-cols-4">
                     <TextInput value={item.label} disabled={!canEdit} onChange={(value) => updateDraft((c) => ({ ...c, stats: c.stats.map((s, i) => (i === index ? { ...s, label: value } : s)) }))} />
                     <TextInput value={String(item.value)} disabled={!canEdit} onChange={(value) => updateDraft((c) => ({ ...c, stats: c.stats.map((s, i) => (i === index ? { ...s, value: Number(value) || 0 } : s)) }))} />
@@ -486,7 +499,7 @@ export default function AdminDashboardPage() {
                   </div>
                 </div>
               ))}
-              <button disabled={!canEdit} onClick={() => updateDraft((c) => ({ ...c, stats: [...c.stats, { label: "", value: 0, suffix: "" }] }))} className="rounded-full border border-accent px-5 py-2 text-sm font-semibold disabled:opacity-50">
+              <button disabled={!canEdit} onClick={() => updateDraft((c) => ({ ...c, stats: [...c.stats, { label: "", value: 0, suffix: "" }] }))} className="btn-secondary border-accent/60 bg-accent/15 px-5 py-2 disabled:opacity-50">
                 Stat qoshish
               </button>
             </div>
@@ -500,7 +513,7 @@ export default function AdminDashboardPage() {
                   <RowActions disabled={!canEdit} onRemove={() => updateDraft((c) => ({ ...c, whyUs: c.whyUs.filter((_, i) => i !== index) }))} />
                 </div>
               ))}
-              <button disabled={!canEdit} onClick={() => updateDraft((c) => ({ ...c, whyUs: [...c.whyUs, ""] }))} className="rounded-full border border-accent px-5 py-2 text-sm font-semibold disabled:opacity-50">
+              <button disabled={!canEdit} onClick={() => updateDraft((c) => ({ ...c, whyUs: [...c.whyUs, ""] }))} className="btn-secondary border-accent/60 bg-accent/15 px-5 py-2 disabled:opacity-50">
                 Punkt qoshish
               </button>
             </div>
@@ -524,7 +537,7 @@ export default function AdminDashboardPage() {
           <SectionCard title="Testimonials">
             <div className="space-y-4">
               {draft.testimonials.map((item, index) => (
-                <div key={`${item.name}-${index}`} className="rounded-2xl border border-white/10 bg-black/20 p-4">
+                <div key={`${item.name}-${index}`} className="premium-panel-soft rounded-2xl p-4">
                   <div className="mb-3 flex items-center justify-between">
                     <p className="text-sm font-semibold text-white">Testimonial #{index + 1}</p>
                     <RowActions disabled={!canEdit} onRemove={() => updateDraft((c) => ({ ...c, testimonials: c.testimonials.filter((_, i) => i !== index) }))} />
@@ -536,7 +549,7 @@ export default function AdminDashboardPage() {
                   </div>
                 </div>
               ))}
-              <button disabled={!canEdit} onClick={() => updateDraft((c) => ({ ...c, testimonials: [...c.testimonials, { name: "", role: "", quote: "" }] }))} className="rounded-full border border-accent px-5 py-2 text-sm font-semibold disabled:opacity-50">
+              <button disabled={!canEdit} onClick={() => updateDraft((c) => ({ ...c, testimonials: [...c.testimonials, { name: "", role: "", quote: "" }] }))} className="btn-secondary border-accent/60 bg-accent/15 px-5 py-2 disabled:opacity-50">
                 Testimonial qoshish
               </button>
             </div>
@@ -554,7 +567,7 @@ export default function AdminDashboardPage() {
                 <RowActions disabled={!canEdit} onRemove={() => updateDraft((c) => ({ ...c, nav: c.nav.filter((_, i) => i !== index) }))} />
               </div>
             ))}
-            <button disabled={!canEdit} onClick={() => updateDraft((c) => ({ ...c, nav: [...c.nav, { label: "", href: "/" }] }))} className="rounded-full border border-accent px-5 py-2 text-sm font-semibold disabled:opacity-50">
+            <button disabled={!canEdit} onClick={() => updateDraft((c) => ({ ...c, nav: [...c.nav, { label: "", href: "/" }] }))} className="btn-secondary border-accent/60 bg-accent/15 px-5 py-2 disabled:opacity-50">
               Menyu item qoshish
             </button>
           </div>
@@ -566,7 +579,7 @@ export default function AdminDashboardPage() {
           <div className="grid gap-3">
             {leads.length === 0 ? <p className="text-sm text-muted">Hozircha lead yoq.</p> : null}
             {leads.map((lead) => (
-              <article key={lead.id} className="rounded-2xl border border-white/10 bg-black/20 p-4">
+              <article key={lead.id} className="premium-panel-soft rounded-2xl p-4">
                 <p className="text-base font-semibold text-white">{lead.name}</p>
                 <div className="mt-2 grid gap-2 text-sm text-muted md:grid-cols-2">
                   <p>Biznes: {lead.businessType}</p>
@@ -588,11 +601,7 @@ export default function AdminDashboardPage() {
             <div className="mt-4">
               <TextInput value={publishNote} onChange={setPublishNote} disabled={!canPublish} />
             </div>
-            <button
-              disabled={!canPublishNow}
-              onClick={publish}
-              className="mt-4 rounded-full border border-accent px-6 py-3 text-sm font-semibold disabled:opacity-50"
-            >
+            <button disabled={!canPublishNow} onClick={publish} className="btn-secondary mt-4 border-accent/60 bg-accent/15 disabled:opacity-50">
               {publishing ? "Publish..." : "Productionga chiqarish"}
             </button>
           </SectionCard>
@@ -601,7 +610,7 @@ export default function AdminDashboardPage() {
             <div className="max-h-[460px] space-y-3 overflow-auto pr-1">
               {audit.length === 0 ? <p className="text-sm text-muted">Audit malumoti yoq.</p> : null}
               {audit.map((row) => (
-                <div key={row.id} className="rounded-xl border border-white/10 bg-black/20 p-3 text-sm">
+                <div key={row.id} className="premium-panel-soft rounded-xl p-3 text-sm">
                   <p className="text-white">
                     {row.action} - {row.actorEmail} ({row.actorRole})
                   </p>
@@ -615,8 +624,11 @@ export default function AdminDashboardPage() {
       ) : null}
 
       {status ? (
-        <div className="mt-6 rounded-xl border border-white/15 bg-white/[0.03] p-3 text-sm text-muted">{status}</div>
+        <div className="premium-panel-soft mt-6 rounded-xl p-3 text-sm text-muted">{status}</div>
       ) : null}
+        </section>
+      </div>
     </div>
   );
 }
+

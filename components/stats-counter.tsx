@@ -17,7 +17,7 @@ export function StatsCounter({ value, suffix, label }: StatsCounterProps) {
   useEffect(() => {
     if (!inView) return;
     const controls = animate(0, value, {
-      duration: 1.4,
+      duration: 1.3,
       ease: "easeOut",
       onUpdate: (latest) => setCount(Math.round(latest))
     });
@@ -25,9 +25,9 @@ export function StatsCounter({ value, suffix, label }: StatsCounterProps) {
   }, [inView, value]);
 
   return (
-    <div ref={ref} className="surface surface-hover rounded-3xl p-6">
+    <div ref={ref} className="premium-panel-soft premium-hover rounded-3xl p-6">
       <p className="text-4xl font-semibold md:text-5xl">
-        <span className="bg-gradient-to-r from-white to-accentSoft bg-clip-text text-transparent">{count}</span>
+        <span className="text-gradient">{count}</span>
         <span>{suffix}</span>
       </p>
       <p className="mt-3 text-sm text-muted">{label}</p>

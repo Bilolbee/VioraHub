@@ -25,9 +25,10 @@ export function PortfolioPageClient({ items, contact }: PortfolioPageClientProps
     <div className="pb-20 pt-12">
       <SectionTitle
         kicker="Portfolio"
-        title="Faqat chiroyli emas, natija beradigan ishlar."
-        subtitle="Kategoriya boyicha filtrlab, har bir loyiha biznesga qanday tasir qilganini koring."
+        title="Korsatiladigan emas, isbotlanadigan natijalar"
+        subtitle="Kategoriya bo yicha filtrlab har bir loyiha qaysi natijani berganini tez ko ring."
       />
+
       <div className="mb-10 flex flex-wrap gap-2">
         {filters.map((filter) => (
           <button
@@ -43,18 +44,26 @@ export function PortfolioPageClient({ items, contact }: PortfolioPageClientProps
           </button>
         ))}
       </div>
+
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {filtered.map((item) => (
-          <Reveal key={item.name}>
-            <article className="surface surface-hover rounded-3xl p-5">
-              <div className="h-40 rounded-2xl border border-white/10 bg-gradient-to-br from-accent/40 to-accentSoft/10" />
+        {filtered.map((item, index) => (
+          <Reveal key={`${item.name}-${index}`}>
+            <article className="section-shell premium-hover rounded-[28px] p-5">
+              <div className="relative h-44 overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-accent/60 via-accentSoft/30 to-[#150d27]">
+                <div className="absolute right-3 top-3 rounded-full border border-white/15 bg-black/40 px-3 py-1 text-[10px] uppercase tracking-[0.2em] text-white/75">
+                  {item.category}
+                </div>
+              </div>
               <h3 className="mt-5 text-xl font-semibold">{item.name}</h3>
-              <p className="mt-2 text-sm text-muted">{item.result}</p>
-              <p className="mt-4 text-xs uppercase tracking-[0.16em] text-accentSoft">{item.tools}</p>
+              <p className="mt-2 text-sm leading-7 text-muted">{item.result}</p>
+              <div className="mt-4 flex flex-wrap gap-2">
+                <span className="stat-pill">{item.tools}</span>
+              </div>
             </article>
           </Reveal>
         ))}
       </div>
+
       <div className="mt-16">
         <CtaBlock contact={contact} />
       </div>

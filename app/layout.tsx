@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
-import { Space_Grotesk } from "next/font/google";
+import { Manrope } from "next/font/google";
 import "./globals.css";
 import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/footer";
 import { FloatingTelegram } from "@/components/floating-telegram";
 import { getPublishedContent } from "@/lib/cms-store";
 
-const spaceGrotesk = Space_Grotesk({ subsets: ["latin"] });
+const manrope = Manrope({ subsets: ["latin"] });
 
 export async function generateMetadata(): Promise<Metadata> {
   const content = await getPublishedContent();
@@ -29,7 +29,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
 
   return (
     <html lang="uz">
-      <body className={spaceGrotesk.className}>
+      <body className={manrope.className}>
         <Navbar navLinks={content.nav} />
         <main className="container-shell">{children}</main>
         <Footer />
