@@ -1,5 +1,6 @@
 import { CtaBlock } from "@/components/cta-block";
 import { SectionTitle } from "@/components/section-title";
+import { TestimonialsStack } from "@/components/testimonials-stack";
 import { getPublishedContent } from "@/lib/cms-store";
 
 export const revalidate = 0;
@@ -8,49 +9,51 @@ export default async function AboutPage() {
   const content = await getPublishedContent();
 
   return (
-    <div className="pb-20 pt-12">
+    <div className="pb-20 pt-16 md:pt-24">
       <SectionTitle kicker={content.about.kicker} title={content.about.title} subtitle={content.about.subtitle} />
 
       <div className="grid gap-4 md:grid-cols-3">
-        <article className="section-shell premium-hover rounded-[28px] p-7">
-          <h3 className="text-xl font-semibold">Missiya</h3>
-          <p className="mt-4 text-sm leading-8 text-muted">{content.about.mission}</p>
-        </article>
-        <article className="section-shell premium-hover rounded-[28px] p-7">
-          <h3 className="text-xl font-semibold">Yondashuv</h3>
-          <p className="mt-4 text-sm leading-8 text-muted">{content.about.approach}</p>
-        </article>
-        <article className="section-shell premium-hover rounded-[28px] p-7">
-          <h3 className="text-xl font-semibold">Vada</h3>
-          <p className="mt-4 text-sm leading-8 text-muted">{content.about.promise}</p>
-        </article>
+        {[
+          { label: "Missiya", body: content.about.mission },
+          { label: "Yondashuv", body: content.about.approach },
+          { label: "Va'da", body: content.about.promise },
+        ].map((item) => (
+          <article key={item.label} className="group relative overflow-hidden rounded-2xl border border-white/[0.06] bg-[#0d0d0d] p-7 transition-colors duration-300 hover:border-white/[0.14]">
+            <p className="text-[10px] uppercase tracking-[0.22em] text-white/35">{item.label}</p>
+            <p className="mt-4 text-[15px] leading-[1.75] text-white/65">{item.body}</p>
+          </article>
+        ))}
       </div>
 
-      <div className="mt-16 grid gap-4 lg:grid-cols-[1fr_1.1fr]">
-        <article className="section-shell rounded-[28px] p-7">
-          <p className="text-xs uppercase tracking-[0.16em] text-accentSoft">How we work</p>
-          <ul className="info-list mt-4">
-            <li>Har sprint oldidan scope aniq yoziladi.</li>
-            <li>Oraliq natijalar haftalik demo orqali beriladi.</li>
-            <li>Launchdan keyin ham optimizatsiya davom etadi.</li>
-          </ul>
-        </article>
-
-        <div>
-          <SectionTitle kicker="Ishonch" title="Mijozlar fikri" subtitle="Natijaga asoslangan hamkorlik haqida qisqa feedbacklar." />
-          <div className="grid gap-4">
-            {content.testimonials.map((item) => (
-              <article key={item.name} className="section-shell premium-hover rounded-[28px] p-7">
-                <p className="text-sm leading-8 text-muted">{item.quote}</p>
-                <p className="mt-4 text-sm font-semibold text-white">{item.name}</p>
-                <p className="text-xs text-muted">{item.role}</p>
-              </article>
-            ))}
-          </div>
+      {/* How we work */}
+      <section className="mt-24">
+        <SectionTitle kicker="Ish uslubi" title="Qanday ishlaymiz." />
+        <div className="grid gap-4 md:grid-cols-2">
+          {[
+            "Har sprint oldidan scope, muddat va KPI yozma kelishiladi.",
+            "Oraliq natijalar haftalik demo va hisobotda ko'rsatiladi.",
+            "Source code, hujjatlash va deploy guide — hammasi sizniki bo'ladi.",
+            "Launchdan keyin 30 kun bepul support, keyin SLA bilan davomiy.",
+          ].map((line, i) => (
+            <div key={i} className="flex items-start gap-4 rounded-xl border border-white/[0.06] bg-[#0d0d0d] p-5">
+              <span className="mt-1 flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-md text-[11px] font-semibold text-accent" style={{ background: "rgba(190,242,100,0.08)", border: "1px solid rgba(190,242,100,0.2)" }}>
+                {String(i + 1).padStart(2, "0")}
+              </span>
+              <p className="text-[15px] leading-[1.7] text-white/65">{line}</p>
+            </div>
+          ))}
         </div>
-      </div>
+      </section>
 
-      <div className="mt-16">
+      {/* Testimonials */}
+      {content.testimonials && content.testimonials.length > 0 && (
+        <section className="mt-24">
+          <SectionTitle kicker="Mijozlar" title="Real fikrlar." align="center" />
+          <TestimonialsStack items={content.testimonials} />
+        </section>
+      )}
+
+      <div className="mt-20">
         <CtaBlock contact={content.contact} />
       </div>
     </div>

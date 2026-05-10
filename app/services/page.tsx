@@ -1,49 +1,52 @@
 import { CtaBlock } from "@/components/cta-block";
-import { Reveal } from "@/components/reveal";
 import { SectionTitle } from "@/components/section-title";
+import { ServiceCard } from "@/components/service-card";
 import { getPublishedContent } from "@/lib/cms-store";
 
 export const revalidate = 0;
 
 const deliveryBlocks = [
-  "Maqsad va KPI mapping",
-  "Konversiya UX va copy",
-  "Integratsiya va avtomatlashtirish",
-  "Analytics va iteratsiya"
+  { num: "01", text: "Brief va texnik aniqlash" },
+  { num: "02", text: "Arxitektura va sxema" },
+  { num: "03", text: "Sprint development" },
+  { num: "04", text: "Deploy va support" },
 ];
 
 export default async function ServicesPage() {
   const content = await getPublishedContent();
 
   return (
-    <div className="pb-20 pt-12">
+    <div className="pb-20 pt-16 md:pt-24">
       <SectionTitle
         kicker="Xizmatlar"
-        title="Biz xizmat emas, growth architecture quramiz"
-        subtitle="Har bir blok lead oqimini oshirish va sotuvni tezlashtirish uchun dizayn qilingan."
+        title="Har bir xizmat aniq biznes natijaga bog'langan."
+        subtitle="Biz alohida vazifalar emas, sotuv va operatsion samaradorlikka xizmat qiladigan tizim quramiz."
       />
 
-      <div className="mb-8 grid gap-4 md:grid-cols-4">
+      {/* Delivery process row */}
+      <div className="mb-14 grid gap-3 md:grid-cols-4">
         {deliveryBlocks.map((block) => (
-          <div key={block} className="section-shell rounded-2xl p-4 text-sm text-white">
-            {block}
+          <div key={block.num} className="flex items-center gap-3 rounded-xl border border-white/[0.06] bg-[#0d0d0d] p-4">
+            <span className="tag-mono text-[11px] text-accent">{block.num}</span>
+            <span className="text-[14px] font-medium text-white/75">{block.text}</span>
           </div>
         ))}
       </div>
 
       <div className="grid gap-4 md:grid-cols-2">
         {content.services.map((section, index) => (
-          <Reveal key={section.title}>
-            <article className="section-shell premium-hover rounded-[28px] p-7">
-              <p className="text-xs uppercase tracking-[0.18em] text-accentSoft">Unit 0{index + 1}</p>
-              <h3 className="mt-2 text-2xl font-semibold">{section.title}</h3>
-              <p className="mt-4 text-sm leading-8 text-muted">{section.description}</p>
-            </article>
-          </Reveal>
+          <ServiceCard
+            key={section.title}
+            title={section.title}
+            description={section.description}
+            outcome={section.outcome}
+            deliverables={section.deliverables}
+            index={index}
+          />
         ))}
       </div>
 
-      <div className="mt-16">
+      <div className="mt-20">
         <CtaBlock contact={content.contact} />
       </div>
     </div>

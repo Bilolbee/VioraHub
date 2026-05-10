@@ -14,13 +14,36 @@ export type StatItem = {
 export type ServiceItem = {
   title: string;
   description: string;
+  outcome: string;
+  deliverables: string[];
 };
 
 export type PortfolioItem = {
   name: string;
   category: string;
+  challenge: string;
+  solution: string;
   result: string;
   tools: string;
+};
+
+export type CaseStudyItem = {
+  client: string;
+  industry: string;
+  challenge: string;
+  solution: string;
+  result: string;
+  timeline: string;
+};
+
+export type ProcessStepItem = {
+  title: string;
+  detail: string;
+};
+
+export type FaqItem = {
+  question: string;
+  answer: string;
 };
 
 export type TestimonialItem = {
@@ -55,9 +78,15 @@ export type SiteContent = {
     primaryCta: string;
     secondaryCta: string;
   };
+  home: {
+    trustLogos: string[];
+    processSteps: ProcessStepItem[];
+    faq: FaqItem[];
+  };
   stats: StatItem[];
   services: ServiceItem[];
   portfolio: PortfolioItem[];
+  caseStudies: CaseStudyItem[];
   whyUs: string[];
   about: {
     kicker: string;

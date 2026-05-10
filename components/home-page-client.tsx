@@ -1,14 +1,26 @@
 "use client";
 
-import Link from "next/link";
-import { motion } from "framer-motion";
+import { HeroSection } from "@/components/hero-section";
+import { MarqueeStrip } from "@/components/marquee-strip";
 import { CtaBlock } from "@/components/cta-block";
+import { FAQAccordion } from "@/components/faq-accordion";
+import { MotionItem, MotionSection } from "@/components/motion-section";
+import { ProcessTimeline } from "@/components/process-timeline";
 import { PortfolioStrip } from "@/components/portfolio-strip";
-import { Reveal } from "@/components/reveal";
 import { SectionTitle } from "@/components/section-title";
 import { ServiceCard } from "@/components/service-card";
 import { StatsCounter } from "@/components/stats-counter";
-import { ContactConfig, PortfolioItem, ServiceItem, StatItem } from "@/lib/cms-types";
+import { TestimonialsStack } from "@/components/testimonials-stack";
+import { CaseStudyFeatured } from "@/components/case-study-featured";
+import {
+  CaseStudyItem,
+  ContactConfig,
+  FaqItem,
+  PortfolioItem,
+  ProcessStepItem,
+  ServiceItem,
+  StatItem,
+} from "@/lib/cms-types";
 
 type HomePageClientProps = {
   hero: {
@@ -18,163 +30,160 @@ type HomePageClientProps = {
     primaryCta: string;
     secondaryCta: string;
   };
+  home: {
+    trustLogos: string[];
+    processSteps: ProcessStepItem[];
+    faq: FaqItem[];
+  };
   stats: StatItem[];
   services: ServiceItem[];
   portfolio: PortfolioItem[];
+  caseStudies: CaseStudyItem[];
   whyUs: string[];
   contact: ContactConfig;
+  testimonials?: { quote: string; name: string; role: string }[];
 };
 
-const trustTags = ["Fintech", "MedTech", "Edu", "Retail", "B2B", "Startup"];
-
-const processRows = [
-  { title: "Strategik discovery", desc: "Biznes bottleneck va maqsadlar aniq xaritaga tushiriladi." },
-  { title: "Design va message", desc: "Premium vizual yo nalish va conversion copy birga quriladi." },
-  { title: "Build va integratsiya", desc: "Sayt, bot va lead oqimi bitta ishchi tizimga ulanadi." },
-  { title: "Launch va optimizatsiya", desc: "Deploy, kuzatuv va doimiy osish uchun iteratsiya boshlanadi." }
-];
-
-export function HomePageClient({ hero, stats, services, portfolio, whyUs, contact }: HomePageClientProps) {
+export function HomePageClient({
+  hero,
+  home,
+  stats,
+  services,
+  portfolio,
+  caseStudies,
+  whyUs,
+  contact,
+  testimonials = [],
+}: HomePageClientProps) {
   return (
-    <div className="pb-20">
-      <section className="relative grid min-h-[88vh] items-center gap-10 py-16 lg:grid-cols-[1.08fr_0.92fr]">
-        <motion.div
-          aria-hidden
-          animate={{ y: [0, -24, 0], x: [0, 18, 0] }}
-          transition={{ duration: 11, repeat: Infinity, ease: "easeInOut" }}
-          className="pointer-events-none absolute -right-20 top-10 h-72 w-72 rounded-full bg-gradient-to-br from-accent to-accentSoft blur-3xl md:h-[460px] md:w-[460px]"
-        />
-        <motion.div
-          aria-hidden
-          animate={{ y: [0, 18, 0], x: [0, -14, 0] }}
-          transition={{ duration: 13, repeat: Infinity, ease: "easeInOut" }}
-          className="pointer-events-none absolute -left-20 bottom-10 h-52 w-52 rounded-full bg-accent/35 blur-3xl"
-        />
+    <div className="pb-24">
+      {/* Hero */}
+      <HeroSection
+        badge={hero.badge}
+        heading={hero.heading}
+        subtitle={hero.subtitle}
+        primaryCta={hero.primaryCta}
+        secondaryCta={hero.secondaryCta}
+      />
 
-        <div className="relative z-10 max-w-3xl">
-          <Reveal>
-            <p className="badge-pill mb-6">{hero.badge}</p>
-          </Reveal>
-          <Reveal delay={0.08}>
-            <h1 className="text-5xl font-semibold leading-[1.02] md:text-7xl">
-              <span>{hero.heading}</span>
-              <span className="mt-3 block text-gradient">Serious execution. Measurable growth.</span>
-            </h1>
-          </Reveal>
-          <Reveal delay={0.16}>
-            <p className="mt-7 max-w-2xl text-base leading-8 text-muted md:text-xl md:leading-9">{hero.subtitle}</p>
-          </Reveal>
-          <Reveal delay={0.24} className="mt-8 flex flex-wrap gap-3">
-            <Link href="/portfolio" className="btn-primary">
-              {hero.primaryCta}
-            </Link>
-            <Link href="/contact" className="btn-secondary">
-              {hero.secondaryCta}
-            </Link>
-          </Reveal>
-          <Reveal delay={0.3} className="mt-8 flex flex-wrap gap-2">
-            {trustTags.map((tag) => (
-              <span key={tag} className="stat-pill">
-                {tag}
-              </span>
-            ))}
-          </Reveal>
-          <Reveal delay={0.36} className="mt-10 grid gap-3 sm:grid-cols-3">
-            {stats.slice(0, 3).map((item) => (
-              <div key={item.label} className="premium-panel-soft rounded-2xl px-4 py-4">
-                <p className="text-lg font-semibold text-white">
-                  {item.value}
-                  {item.suffix}
-                </p>
-                <p className="mt-1 text-xs uppercase tracking-[0.13em] text-muted">{item.label}</p>
-              </div>
-            ))}
-          </Reveal>
+      {/* Tech stack marquee */}
+      {home.trustLogos.length > 0 && (
+        <div className="-mx-5 md:-mx-8">
+          <MarqueeStrip items={home.trustLogos} speed="slow" />
         </div>
+      )}
 
-        <Reveal delay={0.2} className="relative">
-          <div className="section-shell rounded-[30px] p-5 md:p-7">
-            <p className="text-xs uppercase tracking-[0.18em] text-accentSoft">Live delivery board</p>
-            <h3 className="mt-4 text-2xl font-semibold leading-tight md:text-3xl">
-              Har loyiha uchun
-              <span className="block text-gradient">aniq sprint va KPI nazorati</span>
-            </h3>
-            <div className="mt-6 grid gap-3 sm:grid-cols-3">
-              <div className="premium-panel-soft rounded-2xl p-3">
-                <p className="text-[11px] uppercase tracking-[0.15em] text-muted">Cycle</p>
-                <p className="mt-1 text-base font-semibold text-white">7-14 kun</p>
-              </div>
-              <div className="premium-panel-soft rounded-2xl p-3">
-                <p className="text-[11px] uppercase tracking-[0.15em] text-muted">Checkpoints</p>
-                <p className="mt-1 text-base font-semibold text-white">Haftalik</p>
-              </div>
-              <div className="premium-panel-soft rounded-2xl p-3">
-                <p className="text-[11px] uppercase tracking-[0.15em] text-muted">Reporting</p>
-                <p className="mt-1 text-base font-semibold text-white">Realtime</p>
-              </div>
-            </div>
-            <div className="mt-5 space-y-3">
-              {processRows.map((row, index) => (
-                <div key={row.title} className="premium-panel-soft rounded-2xl px-4 py-4">
-                  <p className="text-xs uppercase tracking-[0.17em] text-accentSoft">Bosqich {index + 1}</p>
-                  <p className="mt-2 text-sm font-semibold text-white">{row.title}</p>
-                  <p className="mt-1 text-xs leading-6 text-muted">{row.desc}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </Reveal>
-      </section>
-
-      <section className="py-10 md:py-14">
-        <div className="grid gap-4 md:grid-cols-4">
+      {/* Stats — minimal row */}
+      <section className="py-20 md:py-28">
+        <div className="mb-10 flex items-end justify-between gap-6">
+          <p className="text-[11px] uppercase tracking-[0.2em] text-white/35">Raqamlarda</p>
+          <div className="h-px flex-1 bg-white/[0.06]" />
+        </div>
+        <MotionSection variant="stagger-children" className="grid gap-y-10 gap-x-6 sm:grid-cols-2 md:grid-cols-4">
           {stats.map((item) => (
-            <StatsCounter key={item.label} value={item.value} suffix={item.suffix} label={item.label} />
+            <MotionItem key={item.label}>
+              <StatsCounter value={item.value} suffix={item.suffix} label={item.label} />
+            </MotionItem>
           ))}
-        </div>
+        </MotionSection>
       </section>
 
-      <section className="py-20 md:py-24">
+      {/* Services */}
+      <section className="py-20 md:py-28">
         <SectionTitle
           kicker="Xizmatlar"
-          title="Kreativ emas, commercial impact beradigan xizmatlar"
-          subtitle="Har bir xizmat alohida task emas. Biz barchasini bitta growth engine sifatida loyihalaymiz."
+          title="Biznesingizni avtomatlashtiradigan to'rtta vosita."
+          subtitle="Har biri 1–4 hafta ichida ishga tushadi va sizning ichki jarayonlaringiz bilan to'liq integratsiyalashadi."
         />
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+        <div className="grid gap-4 md:grid-cols-2">
           {services.map((item, index) => (
-            <ServiceCard key={item.title} title={item.title} description={item.description} index={index} />
+            <ServiceCard
+              key={item.title}
+              title={item.title}
+              description={item.description}
+              outcome={item.outcome}
+              deliverables={item.deliverables}
+              index={index}
+            />
           ))}
         </div>
       </section>
 
-      <section className="py-16 md:py-20">
+      {/* Process */}
+      <section className="py-20 md:py-28">
+        <SectionTitle
+          kicker="Jarayon"
+          title="Brieddan deploygacha — beshta aniq qadam."
+          subtitle="Har bosqichda nima qilishimizni, qachon tayyor bo'lishini va kim mas'ul ekanini oldindan kelishamiz."
+        />
+        <ProcessTimeline steps={home.processSteps} />
+      </section>
+
+      {/* Case studies */}
+      <section className="py-20 md:py-28">
+        <SectionTitle
+          kicker="Case studies"
+          title="Real loyihalar, raqamli natijalar."
+          subtitle="Muammo, yechim va o'lchangan natija ochiq ko'rsatiladi."
+        />
+        <CaseStudyFeatured items={caseStudies} />
+      </section>
+
+      {/* Portfolio */}
+      <section className="py-20 md:py-28">
         <SectionTitle
           kicker="Portfolio"
-          title="Tanlangan case lar va biznes natijalari"
-          subtitle="Frontend, automation va marketing yechimlari real natija bilan birga ko rsatiladi."
+          title="Ko'proq loyihalar."
+          subtitle="Telegram botlar, CRM tizimlari, mobil ilova va sayt avtomatizatsiyasi misollari."
         />
         <PortfolioStrip items={portfolio} />
       </section>
 
-      <section className="py-16 md:py-20">
+      {/* Testimonials */}
+      {testimonials.length > 0 && (
+        <section className="py-20 md:py-28">
+          <SectionTitle
+            kicker="Mijozlar"
+            title="Ishlagan jamoalar nima deydi."
+            align="center"
+          />
+          <TestimonialsStack items={testimonials} />
+        </section>
+      )}
+
+      {/* Why us */}
+      <section className="py-20 md:py-28">
         <SectionTitle
-          kicker="Nega Viora Hub"
-          title="Sizga chiroyli fayl emas, ishlaydigan tizim kerak"
-          subtitle="Hamkorlik jarayonida tezlik, aniqlik va masuliyat birinchi o rinda turadi."
+          kicker="Nega Ctrllab"
+          title="Tezlik, shaffoflik va to'liq kod ownership."
         />
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        <MotionSection variant="stagger-children" className="grid gap-3 sm:grid-cols-2">
           {whyUs.map((item, index) => (
-            <Reveal key={item}>
-              <div className="section-shell premium-hover rounded-3xl p-6">
-                <p className="text-xs uppercase tracking-[0.18em] text-accentSoft">0{index + 1}</p>
-                <h3 className="mt-3 text-xl font-semibold text-white">{item}</h3>
+            <MotionItem key={item}>
+              <div className="group flex items-start gap-4 rounded-xl border border-white/[0.06] bg-[#0d0d0d] p-5 transition-colors duration-300 hover:border-white/[0.14]">
+                <span className="mt-1 flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-md text-[11px] font-semibold tabular-nums text-accent" style={{ background: "rgba(190,242,100,0.08)", border: "1px solid rgba(190,242,100,0.2)" }}>
+                  {String(index + 1).padStart(2, "0")}
+                </span>
+                <p className="text-[15px] font-medium text-white/85">{item}</p>
               </div>
-            </Reveal>
+            </MotionItem>
           ))}
-        </div>
+        </MotionSection>
       </section>
 
-      <section className="py-16 md:py-20">
+      {/* FAQ */}
+      <section className="py-20 md:py-28">
+        <SectionTitle
+          kicker="FAQ"
+          title="Qisqa javoblar."
+          subtitle="Eng ko'p so'raladigan savollar bo'yicha yozma javoblar."
+          align="center"
+        />
+        <FAQAccordion items={home.faq} />
+      </section>
+
+      {/* CTA */}
+      <section className="pt-12 md:pt-20">
         <CtaBlock contact={contact} />
       </section>
     </div>

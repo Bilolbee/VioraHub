@@ -34,6 +34,7 @@ type LeadRow = {
 
 type TabId =
   | "general"
+  | "conversion"
   | "portfolio"
   | "services"
   | "stats"
@@ -44,6 +45,7 @@ type TabId =
 
 const tabs: Array<{ id: TabId; label: string }> = [
   { id: "general", label: "Asosiy" },
+  { id: "conversion", label: "Home conversion" },
   { id: "portfolio", label: "Portfolio" },
   { id: "services", label: "Xizmatlar" },
   { id: "stats", label: "Stat va WhyUs" },
@@ -129,7 +131,7 @@ function RowActions({
     <button
       disabled={disabled}
       onClick={onRemove}
-      className="rounded-xl border border-red-400/40 bg-red-500/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.12em] text-red-200 disabled:cursor-not-allowed disabled:opacity-50"
+      className="rounded-xl border border-red-400/40 bg-red-500/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.12em] text-red-700 disabled:cursor-not-allowed disabled:opacity-50"
     >
       Olib tashlash
     </button>
@@ -138,20 +140,36 @@ function RowActions({
 
 function validateDraft(content: SiteContent): string[] {
   const errors: string[] = [];
-  if (!content.hero.heading.trim()) errors.push("Hero heading bosh bolishi mumkin emas.");
-  if (!content.hero.subtitle.trim()) errors.push("Hero subtitle bosh bolishi mumkin emas.");
+
+  if (!content.hero.heading.trim()) errors.push("Hero heading bo'sh bo'lishi mumkin emas.");
+  if (!content.hero.subtitle.trim()) errors.push("Hero subtitle bo'sh bo'lishi mumkin emas.");
+  if (content.home.trustLogos.some((item) => !item.trim())) errors.push("Trust logos bo'limida bo'sh elementlar bor.");
+  if (content.home.processSteps.some((item) => !item.title.trim() || !item.detail.trim())) {
+    errors.push("Process steps bo'limida bo'sh maydonlar bor.");
+  }
+  if (content.home.faq.some((item) => !item.question.trim() || !item.answer.trim())) {
+    errors.push("FAQ bo'limida bo'sh maydonlar bor.");
+  }
+  if (content.caseStudies.some((item) => !item.client.trim() || !item.challenge.trim() || !item.result.trim())) {
+    errors.push("Case studies bo'limida bo'sh maydonlar bor.");
+  }
+  if (content.portfolio.some((p) => !p.name.trim() || !p.category.trim() || !p.challenge.trim() || !p.solution.trim() || !p.result.trim())) {
+    errors.push("Portfolio bo'limida bo'sh maydonlar bor.");
+  }
+  if (
+    content.services.some(
+      (s) => !s.title.trim() || !s.description.trim() || !s.outcome.trim() || s.deliverables.some((d) => !d.trim())
+    )
+  ) {
+    errors.push("Xizmatlar bo'limida bo'sh maydonlar bor.");
+  }
   if (!content.contact.telegram.trim()) errors.push("Telegram link kiritilishi shart.");
   if (!content.contact.phone.trim()) errors.push("Telefon kiritilishi shart.");
-  if (!content.seo.title.trim()) errors.push("SEO title bosh bolmasligi kerak.");
-  if (content.portfolio.some((p) => !p.name.trim() || !p.category.trim() || !p.result.trim())) {
-    errors.push("Portfolio ichida bosh maydonli elementlar bor.");
-  }
-  if (content.services.some((s) => !s.title.trim() || !s.description.trim())) {
-    errors.push("Xizmatlar ichida bosh maydonlar bor.");
-  }
+  if (!content.seo.title.trim()) errors.push("SEO title bo'sh bo'lmasligi kerak.");
   if (content.nav.some((n) => !n.label.trim() || !n.href.trim())) {
-    errors.push("Navigatsiya ichida bosh maydonlar bor.");
+    errors.push("Navigatsiya bo'limida bo'sh maydonlar bor.");
   }
+
   return errors;
 }
 
@@ -199,7 +217,7 @@ export default function AdminDashboardPage() {
         window.location.href = "/admin/login";
         return;
       }
-      setStatus("Malumotlarni yuklab bolmadi.");
+      setStatus("Ma'lumotlarni yuklab bo'lmadi.");
       setLoading(false);
       return;
     }
@@ -233,7 +251,7 @@ export default function AdminDashboardPage() {
   async function saveDraft() {
     if (!draft || !canEdit) return;
     if (validationErrors.length > 0) {
-      setStatus("Avval validatsiya xatolarini togrilang.");
+      setStatus("Avval validatsiya xatolarini to'g'rilang.");
       return;
     }
     setSaving(true);
@@ -264,11 +282,13 @@ export default function AdminDashboardPage() {
       body: JSON.stringify({ note: publishNote })
     });
     setPublishing(false);
+
     if (!response.ok) {
       const body = await response.json().catch(() => ({ error: "Publishda xatolik" }));
       setStatus(body.error || "Publishda xatolik");
       return;
     }
+
     setStatus("Yangi versiya productionga chiqarildi.");
     await loadAll();
   }
@@ -281,7 +301,7 @@ export default function AdminDashboardPage() {
   function discardChanges() {
     if (!data) return;
     setDraft(data.staging);
-    setStatus("Yangi saqlanmagan ozgarishlar bekor qilindi.");
+    setStatus("Saqlanmagan o&apos;zgarishlar bekor qilindi.");
   }
 
   function updateDraft(fn: (current: SiteContent) => SiteContent) {
@@ -292,14 +312,14 @@ export default function AdminDashboardPage() {
   }
 
   if (loading) return <div className="py-16 text-sm text-muted">Yuklanmoqda...</div>;
-  if (!data || !draft) return <div className="py-16 text-sm text-red-300">Admin malumoti topilmadi.</div>;
+  if (!data || !draft) return <div className="py-16 text-sm text-red-600">Admin ma&apos;lumoti topilmadi.</div>;
 
   return (
     <div className="pb-24 pt-8">
       <header className="mb-6 flex flex-wrap items-start justify-between gap-4">
         <div>
           <p className="badge-pill mb-3">Admin dashboard</p>
-          <h1 className="text-3xl font-semibold tracking-tight md:text-4xl">
+          <h1 className="text-3xl font-semibold tracking-tight text-white md:text-4xl">
             <span className="text-gradient">Control Center</span>
           </h1>
           <p className="mt-2 text-sm text-muted">
@@ -319,7 +339,7 @@ export default function AdminDashboardPage() {
       <div className="grid gap-6 lg:grid-cols-[280px_1fr]">
         <aside className="space-y-4 lg:sticky lg:top-[96px] lg:self-start">
           <div className="premium-panel rounded-3xl p-4">
-            <p className="text-xs uppercase tracking-[0.16em] text-accentSoft">Workspace</p>
+            <p className="text-xs uppercase tracking-[0.16em] text-violet-400">Workspace</p>
             <div className="mt-4 grid gap-3">
               <div className="premium-panel-soft rounded-xl p-3">
                 <p className="text-[11px] uppercase tracking-[0.14em] text-muted">Staging</p>
@@ -335,7 +355,7 @@ export default function AdminDashboardPage() {
               </div>
               <div className="premium-panel-soft rounded-xl p-3">
                 <p className="text-[11px] uppercase tracking-[0.14em] text-muted">Holat</p>
-                <p className={`mt-1 text-sm ${dirty ? "text-amber-300" : "text-emerald-300"}`}>
+                <p className={`mt-1 text-sm ${dirty ? "text-amber-600" : "text-emerald-700"}`}>
                   {dirty ? "Unsaved o&apos;zgarish bor" : "Hamma narsa sync"}
                 </p>
               </div>
@@ -351,8 +371,8 @@ export default function AdminDashboardPage() {
                   onClick={() => setActiveTab(tab.id)}
                   className={`w-full rounded-xl px-3 py-2 text-left text-sm font-medium transition ${
                     activeTab === tab.id
-                      ? "border border-accent bg-accent/20 text-white"
-                      : "border border-white/10 bg-white/[0.02] text-muted hover:text-white"
+                      ? "border border-violet-500/40 bg-violet-500/12 text-white"
+                      : "border border-white/[0.08] bg-white/[0.05] text-white/50 hover:text-white"
                   }`}
                 >
                   {tab.label}
@@ -363,272 +383,999 @@ export default function AdminDashboardPage() {
         </aside>
 
         <section className="space-y-6">
-      <div className="sticky top-[90px] z-40 mb-6 rounded-2xl border border-white/15 bg-[#0b0b13]/92 p-3 backdrop-blur-xl">
-        <div className="grid gap-3 lg:grid-cols-[1fr_auto_auto_auto_auto]">
-          <TextInput value={saveNote} onChange={setSaveNote} disabled={!canEdit} />
-          <button
-            disabled={!canSave}
-            onClick={saveDraft}
-            className="btn-primary disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            {saving ? "Saqlanmoqda..." : "Stagingni saqlash"}
-          </button>
-          <button
-            disabled={!dirty || saving}
-            onClick={discardChanges}
-            className="btn-secondary disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            Bekor qilish
-          </button>
-          <button
-            disabled={!canPublishNow}
-            onClick={publish}
-            className="btn-secondary border-accent/60 bg-accent/15 disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            {publishing ? "Publish..." : "Productionga chiqarish"}
-          </button>
-          <TextInput value={publishNote} onChange={setPublishNote} disabled={!canPublish} />
-        </div>
-      </div>
-
-      {validationErrors.length > 0 ? (
-        <div className="mb-6 rounded-2xl border border-red-400/30 bg-red-500/10 p-4">
-          <p className="text-sm font-semibold text-red-200">Validatsiya xatolari:</p>
-          <ul className="mt-2 list-disc pl-5 text-sm text-red-100">
-            {validationErrors.map((error) => (
-              <li key={error}>{error}</li>
-            ))}
-          </ul>
-        </div>
-      ) : null}
-
-      {activeTab === "general" ? (
-        <div className="grid gap-6 lg:grid-cols-2">
-          <SectionCard title="Hero">
-            <div className="space-y-3">
-              <TextInput value={draft.hero.badge} disabled={!canEdit} onChange={(value) => updateDraft((c) => ({ ...c, hero: { ...c.hero, badge: value } }))} />
-              <TextInput value={draft.hero.heading} disabled={!canEdit} onChange={(value) => updateDraft((c) => ({ ...c, hero: { ...c.hero, heading: value } }))} />
-              <TextAreaInput value={draft.hero.subtitle} disabled={!canEdit} onChange={(value) => updateDraft((c) => ({ ...c, hero: { ...c.hero, subtitle: value } }))} />
-              <div className="grid gap-3 md:grid-cols-2">
-                <TextInput value={draft.hero.primaryCta} disabled={!canEdit} onChange={(value) => updateDraft((c) => ({ ...c, hero: { ...c.hero, primaryCta: value } }))} />
-                <TextInput value={draft.hero.secondaryCta} disabled={!canEdit} onChange={(value) => updateDraft((c) => ({ ...c, hero: { ...c.hero, secondaryCta: value } }))} />
-              </div>
-            </div>
-          </SectionCard>
-
-          <SectionCard title="Kontakt">
-            <div className="space-y-3">
-              <TextInput value={draft.contact.telegram} disabled={!canEdit} onChange={(value) => updateDraft((c) => ({ ...c, contact: { ...c.contact, telegram: value } }))} />
-              <TextInput value={draft.contact.whatsapp} disabled={!canEdit} onChange={(value) => updateDraft((c) => ({ ...c, contact: { ...c.contact, whatsapp: value } }))} />
-              <TextInput value={draft.contact.phone} disabled={!canEdit} onChange={(value) => updateDraft((c) => ({ ...c, contact: { ...c.contact, phone: value } }))} />
-              <TextInput value={draft.contact.email} disabled={!canEdit} onChange={(value) => updateDraft((c) => ({ ...c, contact: { ...c.contact, email: value } }))} />
-              <TextInput value={draft.contact.instagram} disabled={!canEdit} onChange={(value) => updateDraft((c) => ({ ...c, contact: { ...c.contact, instagram: value } }))} />
-            </div>
-          </SectionCard>
-
-          <SectionCard title="SEO">
-            <div className="space-y-3">
-              <TextInput value={draft.seo.title} disabled={!canEdit} onChange={(value) => updateDraft((c) => ({ ...c, seo: { ...c.seo, title: value } }))} />
-              <TextAreaInput value={draft.seo.description} disabled={!canEdit} onChange={(value) => updateDraft((c) => ({ ...c, seo: { ...c.seo, description: value } }))} />
-              <TextInput value={draft.seo.ogTitle} disabled={!canEdit} onChange={(value) => updateDraft((c) => ({ ...c, seo: { ...c.seo, ogTitle: value } }))} />
-              <TextAreaInput value={draft.seo.ogDescription} disabled={!canEdit} onChange={(value) => updateDraft((c) => ({ ...c, seo: { ...c.seo, ogDescription: value } }))} />
-            </div>
-          </SectionCard>
-        </div>
-      ) : null}
-
-      {activeTab === "portfolio" ? (
-        <SectionCard title="Portfolio boshqaruvi" subtitle="Qoshish, tahrirlash, ochirish">
-          <div className="space-y-4">
-            {draft.portfolio.map((item, index) => (
-              <div key={`${item.name}-${index}`} className="premium-panel-soft rounded-2xl p-4">
-                <div className="mb-3 flex items-center justify-between">
-                  <p className="text-sm font-semibold text-white">Portfolio #{index + 1}</p>
-                  <RowActions disabled={!canEdit} onRemove={() => updateDraft((c) => ({ ...c, portfolio: c.portfolio.filter((_, i) => i !== index) }))} />
-                </div>
-                <div className="grid gap-3 md:grid-cols-2">
-                  <TextInput value={item.name} disabled={!canEdit} onChange={(value) => updateDraft((c) => ({ ...c, portfolio: c.portfolio.map((p, i) => (i === index ? { ...p, name: value } : p)) }))} />
-                  <TextInput value={item.category} disabled={!canEdit} onChange={(value) => updateDraft((c) => ({ ...c, portfolio: c.portfolio.map((p, i) => (i === index ? { ...p, category: value } : p)) }))} />
-                  <TextInput value={item.tools} disabled={!canEdit} onChange={(value) => updateDraft((c) => ({ ...c, portfolio: c.portfolio.map((p, i) => (i === index ? { ...p, tools: value } : p)) }))} />
-                  <div className="md:col-span-2">
-                    <TextAreaInput value={item.result} disabled={!canEdit} onChange={(value) => updateDraft((c) => ({ ...c, portfolio: c.portfolio.map((p, i) => (i === index ? { ...p, result: value } : p)) }))} />
-                  </div>
-                </div>
-              </div>
-            ))}
-            <button disabled={!canEdit} onClick={() => updateDraft((c) => ({ ...c, portfolio: [...c.portfolio, { name: "", category: "", result: "", tools: "" }] }))} className="btn-secondary border-accent/60 bg-accent/15 px-5 py-2 disabled:opacity-50">
-              Yangi portfolio qoshish
-            </button>
-          </div>
-        </SectionCard>
-      ) : null}
-
-      {activeTab === "services" ? (
-        <SectionCard title="Xizmatlar">
-          <div className="space-y-4">
-            {draft.services.map((item, index) => (
-              <div key={`${item.title}-${index}`} className="premium-panel-soft rounded-2xl p-4">
-                <div className="mb-3 flex items-center justify-between">
-                  <p className="text-sm font-semibold text-white">Xizmat #{index + 1}</p>
-                  <RowActions disabled={!canEdit} onRemove={() => updateDraft((c) => ({ ...c, services: c.services.filter((_, i) => i !== index) }))} />
-                </div>
-                <div className="grid gap-3">
-                  <TextInput value={item.title} disabled={!canEdit} onChange={(value) => updateDraft((c) => ({ ...c, services: c.services.map((s, i) => (i === index ? { ...s, title: value } : s)) }))} />
-                  <TextAreaInput value={item.description} disabled={!canEdit} onChange={(value) => updateDraft((c) => ({ ...c, services: c.services.map((s, i) => (i === index ? { ...s, description: value } : s)) }))} />
-                </div>
-              </div>
-            ))}
-            <button disabled={!canEdit} onClick={() => updateDraft((c) => ({ ...c, services: [...c.services, { title: "", description: "" }] }))} className="btn-secondary border-accent/60 bg-accent/15 px-5 py-2 disabled:opacity-50">
-              Yangi xizmat qoshish
-            </button>
-          </div>
-        </SectionCard>
-      ) : null}
-
-      {activeTab === "stats" ? (
-        <div className="grid gap-6 lg:grid-cols-2">
-          <SectionCard title="Statistikalar">
-            <div className="space-y-4">
-              {draft.stats.map((item, index) => (
-                <div key={`${item.label}-${index}`} className="premium-panel-soft rounded-2xl p-4">
-                  <div className="grid gap-3 md:grid-cols-4">
-                    <TextInput value={item.label} disabled={!canEdit} onChange={(value) => updateDraft((c) => ({ ...c, stats: c.stats.map((s, i) => (i === index ? { ...s, label: value } : s)) }))} />
-                    <TextInput value={String(item.value)} disabled={!canEdit} onChange={(value) => updateDraft((c) => ({ ...c, stats: c.stats.map((s, i) => (i === index ? { ...s, value: Number(value) || 0 } : s)) }))} />
-                    <TextInput value={item.suffix} disabled={!canEdit} onChange={(value) => updateDraft((c) => ({ ...c, stats: c.stats.map((s, i) => (i === index ? { ...s, suffix: value } : s)) }))} />
-                    <RowActions disabled={!canEdit} onRemove={() => updateDraft((c) => ({ ...c, stats: c.stats.filter((_, i) => i !== index) }))} />
-                  </div>
-                </div>
-              ))}
-              <button disabled={!canEdit} onClick={() => updateDraft((c) => ({ ...c, stats: [...c.stats, { label: "", value: 0, suffix: "" }] }))} className="btn-secondary border-accent/60 bg-accent/15 px-5 py-2 disabled:opacity-50">
-                Stat qoshish
+          <div className="sticky top-[90px] z-40 mb-6 rounded-2xl border border-white/[0.08] bg-[#0a0d1a]/95 p-3 backdrop-blur-xl">
+            <div className="grid gap-3 lg:grid-cols-[1fr_auto_auto_auto_auto]">
+              <TextInput value={saveNote} onChange={setSaveNote} disabled={!canEdit} />
+              <button
+                disabled={!canSave}
+                onClick={saveDraft}
+                className="btn-primary disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {saving ? "Saqlanmoqda..." : "Stagingni saqlash"}
               </button>
-            </div>
-          </SectionCard>
-
-          <SectionCard title="Why Us punktlari">
-            <div className="space-y-3">
-              {draft.whyUs.map((item, index) => (
-                <div key={`${item}-${index}`} className="grid gap-3 md:grid-cols-[1fr_auto]">
-                  <TextInput value={item} disabled={!canEdit} onChange={(value) => updateDraft((c) => ({ ...c, whyUs: c.whyUs.map((w, i) => (i === index ? value : w)) }))} />
-                  <RowActions disabled={!canEdit} onRemove={() => updateDraft((c) => ({ ...c, whyUs: c.whyUs.filter((_, i) => i !== index) }))} />
-                </div>
-              ))}
-              <button disabled={!canEdit} onClick={() => updateDraft((c) => ({ ...c, whyUs: [...c.whyUs, ""] }))} className="btn-secondary border-accent/60 bg-accent/15 px-5 py-2 disabled:opacity-50">
-                Punkt qoshish
+              <button
+                disabled={!dirty || saving}
+                onClick={discardChanges}
+                className="btn-secondary disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                Bekor qilish
               </button>
-            </div>
-          </SectionCard>
-        </div>
-      ) : null}
-
-      {activeTab === "about" ? (
-        <div className="grid gap-6 lg:grid-cols-2">
-          <SectionCard title="About bolimi">
-            <div className="space-y-3">
-              <TextInput value={draft.about.kicker} disabled={!canEdit} onChange={(value) => updateDraft((c) => ({ ...c, about: { ...c.about, kicker: value } }))} />
-              <TextInput value={draft.about.title} disabled={!canEdit} onChange={(value) => updateDraft((c) => ({ ...c, about: { ...c.about, title: value } }))} />
-              <TextAreaInput value={draft.about.subtitle} disabled={!canEdit} onChange={(value) => updateDraft((c) => ({ ...c, about: { ...c.about, subtitle: value } }))} />
-              <TextAreaInput value={draft.about.mission} disabled={!canEdit} onChange={(value) => updateDraft((c) => ({ ...c, about: { ...c.about, mission: value } }))} />
-              <TextAreaInput value={draft.about.approach} disabled={!canEdit} onChange={(value) => updateDraft((c) => ({ ...c, about: { ...c.about, approach: value } }))} />
-              <TextAreaInput value={draft.about.promise} disabled={!canEdit} onChange={(value) => updateDraft((c) => ({ ...c, about: { ...c.about, promise: value } }))} />
-            </div>
-          </SectionCard>
-
-          <SectionCard title="Testimonials">
-            <div className="space-y-4">
-              {draft.testimonials.map((item, index) => (
-                <div key={`${item.name}-${index}`} className="premium-panel-soft rounded-2xl p-4">
-                  <div className="mb-3 flex items-center justify-between">
-                    <p className="text-sm font-semibold text-white">Testimonial #{index + 1}</p>
-                    <RowActions disabled={!canEdit} onRemove={() => updateDraft((c) => ({ ...c, testimonials: c.testimonials.filter((_, i) => i !== index) }))} />
-                  </div>
-                  <div className="grid gap-3">
-                    <TextInput value={item.name} disabled={!canEdit} onChange={(value) => updateDraft((c) => ({ ...c, testimonials: c.testimonials.map((t, i) => (i === index ? { ...t, name: value } : t)) }))} />
-                    <TextInput value={item.role} disabled={!canEdit} onChange={(value) => updateDraft((c) => ({ ...c, testimonials: c.testimonials.map((t, i) => (i === index ? { ...t, role: value } : t)) }))} />
-                    <TextAreaInput value={item.quote} disabled={!canEdit} onChange={(value) => updateDraft((c) => ({ ...c, testimonials: c.testimonials.map((t, i) => (i === index ? { ...t, quote: value } : t)) }))} />
-                  </div>
-                </div>
-              ))}
-              <button disabled={!canEdit} onClick={() => updateDraft((c) => ({ ...c, testimonials: [...c.testimonials, { name: "", role: "", quote: "" }] }))} className="btn-secondary border-accent/60 bg-accent/15 px-5 py-2 disabled:opacity-50">
-                Testimonial qoshish
+              <button
+                disabled={!canPublishNow}
+                onClick={publish}
+                className="btn-secondary border-violet-500/35 bg-violet-500/10 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {publishing ? "Publish..." : "Productionga chiqarish"}
               </button>
-            </div>
-          </SectionCard>
-        </div>
-      ) : null}
-
-      {activeTab === "navigation" ? (
-        <SectionCard title="Navigatsiya menyusi">
-          <div className="space-y-3">
-            {draft.nav.map((item, index) => (
-              <div key={`${item.href}-${index}`} className="grid gap-3 md:grid-cols-[1fr_1fr_auto]">
-                <TextInput value={item.label} disabled={!canEdit} onChange={(value) => updateDraft((c) => ({ ...c, nav: c.nav.map((n, i) => (i === index ? { ...n, label: value } : n)) }))} />
-                <TextInput value={item.href} disabled={!canEdit} onChange={(value) => updateDraft((c) => ({ ...c, nav: c.nav.map((n, i) => (i === index ? { ...n, href: value } : n)) }))} />
-                <RowActions disabled={!canEdit} onRemove={() => updateDraft((c) => ({ ...c, nav: c.nav.filter((_, i) => i !== index) }))} />
-              </div>
-            ))}
-            <button disabled={!canEdit} onClick={() => updateDraft((c) => ({ ...c, nav: [...c.nav, { label: "", href: "/" }] }))} className="btn-secondary border-accent/60 bg-accent/15 px-5 py-2 disabled:opacity-50">
-              Menyu item qoshish
-            </button>
-          </div>
-        </SectionCard>
-      ) : null}
-
-      {activeTab === "leads" ? (
-        <SectionCard title="Leadlar" subtitle="Contact form orqali tushgan sorovlar">
-          <div className="grid gap-3">
-            {leads.length === 0 ? <p className="text-sm text-muted">Hozircha lead yoq.</p> : null}
-            {leads.map((lead) => (
-              <article key={lead.id} className="premium-panel-soft rounded-2xl p-4">
-                <p className="text-base font-semibold text-white">{lead.name}</p>
-                <div className="mt-2 grid gap-2 text-sm text-muted md:grid-cols-2">
-                  <p>Biznes: {lead.businessType}</p>
-                  <p>Xizmat: {lead.neededService}</p>
-                  <p>Byudjet: {lead.budget}</p>
-                  <p>Telefon: {lead.phone}</p>
-                </div>
-                <p className="mt-2 text-xs text-muted">{new Date(lead.createdAt).toLocaleString()}</p>
-              </article>
-            ))}
-          </div>
-        </SectionCard>
-      ) : null}
-
-      {activeTab === "release" ? (
-        <div className="grid gap-6 lg:grid-cols-2">
-          <SectionCard title="Publish boshqaruvi">
-            <p className="text-sm text-muted">Faqat reviewer yoki admin productionga chiqarishi mumkin.</p>
-            <div className="mt-4">
               <TextInput value={publishNote} onChange={setPublishNote} disabled={!canPublish} />
             </div>
-            <button disabled={!canPublishNow} onClick={publish} className="btn-secondary mt-4 border-accent/60 bg-accent/15 disabled:opacity-50">
-              {publishing ? "Publish..." : "Productionga chiqarish"}
-            </button>
-          </SectionCard>
+          </div>
 
-          <SectionCard title="Audit log">
-            <div className="max-h-[460px] space-y-3 overflow-auto pr-1">
-              {audit.length === 0 ? <p className="text-sm text-muted">Audit malumoti yoq.</p> : null}
-              {audit.map((row) => (
-                <div key={row.id} className="premium-panel-soft rounded-xl p-3 text-sm">
-                  <p className="text-white">
-                    {row.action} - {row.actorEmail} ({row.actorRole})
-                  </p>
-                  <p className="mt-1 text-xs text-muted">{new Date(row.at).toLocaleString()}</p>
-                  <p className="mt-1 text-xs text-muted">{row.details}</p>
-                </div>
-              ))}
+          {validationErrors.length > 0 ? (
+            <div className="mb-6 rounded-2xl border border-red-400/30 bg-red-500/10 p-4">
+              <p className="text-sm font-semibold text-red-700">Validatsiya xatolari:</p>
+              <ul className="mt-2 list-disc pl-5 text-sm text-red-700">
+                {validationErrors.map((error) => (
+                  <li key={error}>{error}</li>
+                ))}
+              </ul>
             </div>
-          </SectionCard>
-        </div>
-      ) : null}
+          ) : null}
 
-      {status ? (
-        <div className="premium-panel-soft mt-6 rounded-xl p-3 text-sm text-muted">{status}</div>
-      ) : null}
+          {activeTab === "general" ? (
+            <div className="grid gap-6 lg:grid-cols-2">
+              <SectionCard title="Hero">
+                <div className="space-y-3">
+                  <TextInput
+                    value={draft.hero.badge}
+                    disabled={!canEdit}
+                    onChange={(value) => updateDraft((c) => ({ ...c, hero: { ...c.hero, badge: value } }))}
+                  />
+                  <TextInput
+                    value={draft.hero.heading}
+                    disabled={!canEdit}
+                    onChange={(value) => updateDraft((c) => ({ ...c, hero: { ...c.hero, heading: value } }))}
+                  />
+                  <TextAreaInput
+                    value={draft.hero.subtitle}
+                    disabled={!canEdit}
+                    onChange={(value) => updateDraft((c) => ({ ...c, hero: { ...c.hero, subtitle: value } }))}
+                    rows={4}
+                  />
+                  <div className="grid gap-3 md:grid-cols-2">
+                    <TextInput
+                      value={draft.hero.primaryCta}
+                      disabled={!canEdit}
+                      onChange={(value) =>
+                        updateDraft((c) => ({ ...c, hero: { ...c.hero, primaryCta: value } }))
+                      }
+                    />
+                    <TextInput
+                      value={draft.hero.secondaryCta}
+                      disabled={!canEdit}
+                      onChange={(value) =>
+                        updateDraft((c) => ({ ...c, hero: { ...c.hero, secondaryCta: value } }))
+                      }
+                    />
+                  </div>
+                </div>
+              </SectionCard>
+
+              <SectionCard title="Kontakt">
+                <div className="space-y-3">
+                  <TextInput
+                    value={draft.contact.telegram}
+                    disabled={!canEdit}
+                    onChange={(value) => updateDraft((c) => ({ ...c, contact: { ...c.contact, telegram: value } }))}
+                  />
+                  <TextInput
+                    value={draft.contact.whatsapp}
+                    disabled={!canEdit}
+                    onChange={(value) => updateDraft((c) => ({ ...c, contact: { ...c.contact, whatsapp: value } }))}
+                  />
+                  <TextInput
+                    value={draft.contact.phone}
+                    disabled={!canEdit}
+                    onChange={(value) => updateDraft((c) => ({ ...c, contact: { ...c.contact, phone: value } }))}
+                  />
+                  <TextInput
+                    value={draft.contact.email}
+                    disabled={!canEdit}
+                    onChange={(value) => updateDraft((c) => ({ ...c, contact: { ...c.contact, email: value } }))}
+                  />
+                  <TextInput
+                    value={draft.contact.instagram}
+                    disabled={!canEdit}
+                    onChange={(value) => updateDraft((c) => ({ ...c, contact: { ...c.contact, instagram: value } }))}
+                  />
+                </div>
+              </SectionCard>
+
+              <SectionCard title="SEO">
+                <div className="space-y-3">
+                  <TextInput
+                    value={draft.seo.title}
+                    disabled={!canEdit}
+                    onChange={(value) => updateDraft((c) => ({ ...c, seo: { ...c.seo, title: value } }))}
+                  />
+                  <TextAreaInput
+                    value={draft.seo.description}
+                    disabled={!canEdit}
+                    onChange={(value) => updateDraft((c) => ({ ...c, seo: { ...c.seo, description: value } }))}
+                    rows={4}
+                  />
+                  <TextInput
+                    value={draft.seo.ogTitle}
+                    disabled={!canEdit}
+                    onChange={(value) => updateDraft((c) => ({ ...c, seo: { ...c.seo, ogTitle: value } }))}
+                  />
+                  <TextAreaInput
+                    value={draft.seo.ogDescription}
+                    disabled={!canEdit}
+                    onChange={(value) => updateDraft((c) => ({ ...c, seo: { ...c.seo, ogDescription: value } }))}
+                    rows={4}
+                  />
+                </div>
+              </SectionCard>
+            </div>
+          ) : null}
+
+          {activeTab === "conversion" ? (
+            <div className="grid gap-6">
+              <SectionCard title="Trust logos">
+                <div className="space-y-3">
+                  {draft.home.trustLogos.map((item, index) => (
+                    <div key={`${item}-${index}`} className="grid gap-3 md:grid-cols-[1fr_auto]">
+                      <TextInput
+                        value={item}
+                        disabled={!canEdit}
+                        onChange={(value) =>
+                          updateDraft((c) => ({
+                            ...c,
+                            home: {
+                              ...c.home,
+                              trustLogos: c.home.trustLogos.map((row, i) => (i === index ? value : row))
+                            }
+                          }))
+                        }
+                      />
+                      <RowActions
+                        disabled={!canEdit}
+                        onRemove={() =>
+                          updateDraft((c) => ({
+                            ...c,
+                            home: {
+                              ...c.home,
+                              trustLogos: c.home.trustLogos.filter((_, i) => i !== index)
+                            }
+                          }))
+                        }
+                      />
+                    </div>
+                  ))}
+                  <button
+                    disabled={!canEdit}
+                    onClick={() =>
+                      updateDraft((c) => ({ ...c, home: { ...c.home, trustLogos: [...c.home.trustLogos, ""] } }))
+                    }
+                    className="btn-secondary border-violet-500/35 bg-violet-500/10 px-5 py-2 disabled:opacity-50"
+                  >
+                    Logo qator qo&apos;shish
+                  </button>
+                </div>
+              </SectionCard>
+
+              <SectionCard title="Process steps" subtitle="Home sahifadagi jarayon bosqichlari">
+                <div className="space-y-4">
+                  {draft.home.processSteps.map((item, index) => (
+                    <div key={`${item.title}-${index}`} className="premium-panel-soft rounded-2xl p-4">
+                      <div className="mb-3 flex items-center justify-between">
+                        <p className="text-sm font-semibold text-white">Bosqich #{index + 1}</p>
+                        <RowActions
+                          disabled={!canEdit}
+                          onRemove={() =>
+                            updateDraft((c) => ({
+                              ...c,
+                              home: {
+                                ...c.home,
+                                processSteps: c.home.processSteps.filter((_, i) => i !== index)
+                              }
+                            }))
+                          }
+                        />
+                      </div>
+                      <div className="grid gap-3">
+                        <TextInput
+                          value={item.title}
+                          disabled={!canEdit}
+                          onChange={(value) =>
+                            updateDraft((c) => ({
+                              ...c,
+                              home: {
+                                ...c.home,
+                                processSteps: c.home.processSteps.map((row, i) =>
+                                  i === index ? { ...row, title: value } : row
+                                )
+                              }
+                            }))
+                          }
+                        />
+                        <TextAreaInput
+                          value={item.detail}
+                          disabled={!canEdit}
+                          rows={4}
+                          onChange={(value) =>
+                            updateDraft((c) => ({
+                              ...c,
+                              home: {
+                                ...c.home,
+                                processSteps: c.home.processSteps.map((row, i) =>
+                                  i === index ? { ...row, detail: value } : row
+                                )
+                              }
+                            }))
+                          }
+                        />
+                      </div>
+                    </div>
+                  ))}
+                  <button
+                    disabled={!canEdit}
+                    onClick={() =>
+                      updateDraft((c) => ({
+                        ...c,
+                        home: {
+                          ...c.home,
+                          processSteps: [...c.home.processSteps, { title: "", detail: "" }]
+                        }
+                      }))
+                    }
+                    className="btn-secondary border-violet-500/35 bg-violet-500/10 px-5 py-2 disabled:opacity-50"
+                  >
+                    Process step qo&apos;shish
+                  </button>
+                </div>
+              </SectionCard>
+
+              <SectionCard title="FAQ">
+                <div className="space-y-4">
+                  {draft.home.faq.map((item, index) => (
+                    <div key={`${item.question}-${index}`} className="premium-panel-soft rounded-2xl p-4">
+                      <div className="mb-3 flex items-center justify-between">
+                        <p className="text-sm font-semibold text-white">FAQ #{index + 1}</p>
+                        <RowActions
+                          disabled={!canEdit}
+                          onRemove={() =>
+                            updateDraft((c) => ({
+                              ...c,
+                              home: {
+                                ...c.home,
+                                faq: c.home.faq.filter((_, i) => i !== index)
+                              }
+                            }))
+                          }
+                        />
+                      </div>
+                      <div className="grid gap-3">
+                        <TextInput
+                          value={item.question}
+                          disabled={!canEdit}
+                          onChange={(value) =>
+                            updateDraft((c) => ({
+                              ...c,
+                              home: {
+                                ...c.home,
+                                faq: c.home.faq.map((row, i) => (i === index ? { ...row, question: value } : row))
+                              }
+                            }))
+                          }
+                        />
+                        <TextAreaInput
+                          value={item.answer}
+                          disabled={!canEdit}
+                          rows={4}
+                          onChange={(value) =>
+                            updateDraft((c) => ({
+                              ...c,
+                              home: {
+                                ...c.home,
+                                faq: c.home.faq.map((row, i) => (i === index ? { ...row, answer: value } : row))
+                              }
+                            }))
+                          }
+                        />
+                      </div>
+                    </div>
+                  ))}
+                  <button
+                    disabled={!canEdit}
+                    onClick={() =>
+                      updateDraft((c) => ({
+                        ...c,
+                        home: {
+                          ...c.home,
+                          faq: [...c.home.faq, { question: "", answer: "" }]
+                        }
+                      }))
+                    }
+                    className="btn-secondary border-violet-500/35 bg-violet-500/10 px-5 py-2 disabled:opacity-50"
+                  >
+                    FAQ qo&apos;shish
+                  </button>
+                </div>
+              </SectionCard>
+
+              <SectionCard title="Featured case studies">
+                <div className="space-y-4">
+                  {draft.caseStudies.map((item, index) => (
+                    <div key={`${item.client}-${index}`} className="premium-panel-soft rounded-2xl p-4">
+                      <div className="mb-3 flex items-center justify-between">
+                        <p className="text-sm font-semibold text-white">Case #{index + 1}</p>
+                        <RowActions
+                          disabled={!canEdit}
+                          onRemove={() =>
+                            updateDraft((c) => ({
+                              ...c,
+                              caseStudies: c.caseStudies.filter((_, i) => i !== index)
+                            }))
+                          }
+                        />
+                      </div>
+                      <div className="grid gap-3 md:grid-cols-2">
+                        <TextInput
+                          value={item.client}
+                          disabled={!canEdit}
+                          onChange={(value) =>
+                            updateDraft((c) => ({
+                              ...c,
+                              caseStudies: c.caseStudies.map((row, i) =>
+                                i === index ? { ...row, client: value } : row
+                              )
+                            }))
+                          }
+                        />
+                        <TextInput
+                          value={item.industry}
+                          disabled={!canEdit}
+                          onChange={(value) =>
+                            updateDraft((c) => ({
+                              ...c,
+                              caseStudies: c.caseStudies.map((row, i) =>
+                                i === index ? { ...row, industry: value } : row
+                              )
+                            }))
+                          }
+                        />
+                        <TextInput
+                          value={item.timeline}
+                          disabled={!canEdit}
+                          onChange={(value) =>
+                            updateDraft((c) => ({
+                              ...c,
+                              caseStudies: c.caseStudies.map((row, i) =>
+                                i === index ? { ...row, timeline: value } : row
+                              )
+                            }))
+                          }
+                        />
+                        <div className="md:col-span-2">
+                          <TextAreaInput
+                            value={item.challenge}
+                            disabled={!canEdit}
+                            rows={3}
+                            onChange={(value) =>
+                              updateDraft((c) => ({
+                                ...c,
+                                caseStudies: c.caseStudies.map((row, i) =>
+                                  i === index ? { ...row, challenge: value } : row
+                                )
+                              }))
+                            }
+                          />
+                        </div>
+                        <div className="md:col-span-2">
+                          <TextAreaInput
+                            value={item.solution}
+                            disabled={!canEdit}
+                            rows={3}
+                            onChange={(value) =>
+                              updateDraft((c) => ({
+                                ...c,
+                                caseStudies: c.caseStudies.map((row, i) =>
+                                  i === index ? { ...row, solution: value } : row
+                                )
+                              }))
+                            }
+                          />
+                        </div>
+                        <div className="md:col-span-2">
+                          <TextAreaInput
+                            value={item.result}
+                            disabled={!canEdit}
+                            rows={3}
+                            onChange={(value) =>
+                              updateDraft((c) => ({
+                                ...c,
+                                caseStudies: c.caseStudies.map((row, i) =>
+                                  i === index ? { ...row, result: value } : row
+                                )
+                              }))
+                            }
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                  <button
+                    disabled={!canEdit}
+                    onClick={() =>
+                      updateDraft((c) => ({
+                        ...c,
+                        caseStudies: [
+                          ...c.caseStudies,
+                          {
+                            client: "",
+                            industry: "",
+                            challenge: "",
+                            solution: "",
+                            result: "",
+                            timeline: ""
+                          }
+                        ]
+                      }))
+                    }
+                    className="btn-secondary border-violet-500/35 bg-violet-500/10 px-5 py-2 disabled:opacity-50"
+                  >
+                    Case study qo&apos;shish
+                  </button>
+                </div>
+              </SectionCard>
+            </div>
+          ) : null}
+
+          {activeTab === "portfolio" ? (
+            <SectionCard title="Portfolio boshqaruvi" subtitle="Muammo, yechim va natija asosida tahrirlash">
+              <div className="space-y-4">
+                {draft.portfolio.map((item, index) => (
+                  <div key={`${item.name}-${index}`} className="premium-panel-soft rounded-2xl p-4">
+                    <div className="mb-3 flex items-center justify-between">
+                      <p className="text-sm font-semibold text-white">Portfolio #{index + 1}</p>
+                      <RowActions
+                        disabled={!canEdit}
+                        onRemove={() =>
+                          updateDraft((c) => ({ ...c, portfolio: c.portfolio.filter((_, i) => i !== index) }))
+                        }
+                      />
+                    </div>
+                    <div className="grid gap-3 md:grid-cols-2">
+                      <TextInput
+                        value={item.name}
+                        disabled={!canEdit}
+                        onChange={(value) =>
+                          updateDraft((c) => ({
+                            ...c,
+                            portfolio: c.portfolio.map((p, i) => (i === index ? { ...p, name: value } : p))
+                          }))
+                        }
+                      />
+                      <TextInput
+                        value={item.category}
+                        disabled={!canEdit}
+                        onChange={(value) =>
+                          updateDraft((c) => ({
+                            ...c,
+                            portfolio: c.portfolio.map((p, i) => (i === index ? { ...p, category: value } : p))
+                          }))
+                        }
+                      />
+                      <TextInput
+                        value={item.tools}
+                        disabled={!canEdit}
+                        onChange={(value) =>
+                          updateDraft((c) => ({
+                            ...c,
+                            portfolio: c.portfolio.map((p, i) => (i === index ? { ...p, tools: value } : p))
+                          }))
+                        }
+                      />
+                      <div className="md:col-span-2">
+                        <TextAreaInput
+                          value={item.challenge}
+                          disabled={!canEdit}
+                          rows={3}
+                          onChange={(value) =>
+                            updateDraft((c) => ({
+                              ...c,
+                              portfolio: c.portfolio.map((p, i) => (i === index ? { ...p, challenge: value } : p))
+                            }))
+                          }
+                        />
+                      </div>
+                      <div className="md:col-span-2">
+                        <TextAreaInput
+                          value={item.solution}
+                          disabled={!canEdit}
+                          rows={3}
+                          onChange={(value) =>
+                            updateDraft((c) => ({
+                              ...c,
+                              portfolio: c.portfolio.map((p, i) => (i === index ? { ...p, solution: value } : p))
+                            }))
+                          }
+                        />
+                      </div>
+                      <div className="md:col-span-2">
+                        <TextAreaInput
+                          value={item.result}
+                          disabled={!canEdit}
+                          rows={3}
+                          onChange={(value) =>
+                            updateDraft((c) => ({
+                              ...c,
+                              portfolio: c.portfolio.map((p, i) => (i === index ? { ...p, result: value } : p))
+                            }))
+                          }
+                        />
+                      </div>
+                    </div>
+                  </div>
+                ))}
+                <button
+                  disabled={!canEdit}
+                  onClick={() =>
+                    updateDraft((c) => ({
+                      ...c,
+                      portfolio: [
+                        ...c.portfolio,
+                        {
+                          name: "",
+                          category: "",
+                          challenge: "",
+                          solution: "",
+                          result: "",
+                          tools: ""
+                        }
+                      ]
+                    }))
+                  }
+                  className="btn-secondary border-violet-500/35 bg-violet-500/10 px-5 py-2 disabled:opacity-50"
+                >
+                  Yangi portfolio qo&apos;shish
+                </button>
+              </div>
+            </SectionCard>
+          ) : null}
+
+          {activeTab === "services" ? (
+            <SectionCard title="Xizmatlar" subtitle="Outcome va deliverables bilan boshqaruv">
+              <div className="space-y-4">
+                {draft.services.map((item, index) => (
+                  <div key={`${item.title}-${index}`} className="premium-panel-soft rounded-2xl p-4">
+                    <div className="mb-3 flex items-center justify-between">
+                      <p className="text-sm font-semibold text-white">Xizmat #{index + 1}</p>
+                      <RowActions
+                        disabled={!canEdit}
+                        onRemove={() =>
+                          updateDraft((c) => ({ ...c, services: c.services.filter((_, i) => i !== index) }))
+                        }
+                      />
+                    </div>
+                    <div className="grid gap-3">
+                      <TextInput
+                        value={item.title}
+                        disabled={!canEdit}
+                        onChange={(value) =>
+                          updateDraft((c) => ({
+                            ...c,
+                            services: c.services.map((s, i) => (i === index ? { ...s, title: value } : s))
+                          }))
+                        }
+                      />
+                      <TextAreaInput
+                        value={item.description}
+                        disabled={!canEdit}
+                        rows={3}
+                        onChange={(value) =>
+                          updateDraft((c) => ({
+                            ...c,
+                            services: c.services.map((s, i) => (i === index ? { ...s, description: value } : s))
+                          }))
+                        }
+                      />
+                      <TextAreaInput
+                        value={item.outcome}
+                        disabled={!canEdit}
+                        rows={2}
+                        onChange={(value) =>
+                          updateDraft((c) => ({
+                            ...c,
+                            services: c.services.map((s, i) => (i === index ? { ...s, outcome: value } : s))
+                          }))
+                        }
+                      />
+
+                      <div className="space-y-2">
+                        <p className="text-xs uppercase tracking-[0.14em] text-muted">Deliverables</p>
+                        {item.deliverables.map((row, dIndex) => (
+                          <div key={`${row}-${dIndex}`} className="grid gap-2 md:grid-cols-[1fr_auto]">
+                            <TextInput
+                              value={row}
+                              disabled={!canEdit}
+                              onChange={(value) =>
+                                updateDraft((c) => ({
+                                  ...c,
+                                  services: c.services.map((service, i) =>
+                                    i === index
+                                      ? {
+                                          ...service,
+                                          deliverables: service.deliverables.map((d, j) =>
+                                            j === dIndex ? value : d
+                                          )
+                                        }
+                                      : service
+                                  )
+                                }))
+                              }
+                            />
+                            <RowActions
+                              disabled={!canEdit}
+                              onRemove={() =>
+                                updateDraft((c) => ({
+                                  ...c,
+                                  services: c.services.map((service, i) =>
+                                    i === index
+                                      ? {
+                                          ...service,
+                                          deliverables: service.deliverables.filter((_, j) => j !== dIndex)
+                                        }
+                                      : service
+                                  )
+                                }))
+                              }
+                            />
+                          </div>
+                        ))}
+                        <button
+                          disabled={!canEdit}
+                          onClick={() =>
+                            updateDraft((c) => ({
+                              ...c,
+                              services: c.services.map((service, i) =>
+                                i === index
+                                  ? { ...service, deliverables: [...service.deliverables, ""] }
+                                  : service
+                              )
+                            }))
+                          }
+                          className="btn-secondary border-violet-500/35 bg-violet-500/10 px-4 py-2 text-xs disabled:opacity-50"
+                        >
+                          Deliverable qo&apos;shish
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+                <button
+                  disabled={!canEdit}
+                  onClick={() =>
+                    updateDraft((c) => ({
+                      ...c,
+                      services: [
+                        ...c.services,
+                        { title: "", description: "", outcome: "", deliverables: [] }
+                      ]
+                    }))
+                  }
+                  className="btn-secondary border-violet-500/35 bg-violet-500/10 px-5 py-2 disabled:opacity-50"
+                >
+                  Yangi xizmat qo&apos;shish
+                </button>
+              </div>
+            </SectionCard>
+          ) : null}
+
+          {activeTab === "stats" ? (
+            <div className="grid gap-6 lg:grid-cols-2">
+              <SectionCard title="Statistikalar">
+                <div className="space-y-4">
+                  {draft.stats.map((item, index) => (
+                    <div key={`${item.label}-${index}`} className="premium-panel-soft rounded-2xl p-4">
+                      <div className="grid gap-3 md:grid-cols-4">
+                        <TextInput
+                          value={item.label}
+                          disabled={!canEdit}
+                          onChange={(value) =>
+                            updateDraft((c) => ({
+                              ...c,
+                              stats: c.stats.map((s, i) => (i === index ? { ...s, label: value } : s))
+                            }))
+                          }
+                        />
+                        <TextInput
+                          value={String(item.value)}
+                          disabled={!canEdit}
+                          onChange={(value) =>
+                            updateDraft((c) => ({
+                              ...c,
+                              stats: c.stats.map((s, i) => (i === index ? { ...s, value: Number(value) || 0 } : s))
+                            }))
+                          }
+                        />
+                        <TextInput
+                          value={item.suffix}
+                          disabled={!canEdit}
+                          onChange={(value) =>
+                            updateDraft((c) => ({
+                              ...c,
+                              stats: c.stats.map((s, i) => (i === index ? { ...s, suffix: value } : s))
+                            }))
+                          }
+                        />
+                        <RowActions
+                          disabled={!canEdit}
+                          onRemove={() =>
+                            updateDraft((c) => ({ ...c, stats: c.stats.filter((_, i) => i !== index) }))
+                          }
+                        />
+                      </div>
+                    </div>
+                  ))}
+                  <button
+                    disabled={!canEdit}
+                    onClick={() =>
+                      updateDraft((c) => ({ ...c, stats: [...c.stats, { label: "", value: 0, suffix: "" }] }))
+                    }
+                    className="btn-secondary border-violet-500/35 bg-violet-500/10 px-5 py-2 disabled:opacity-50"
+                  >
+                    Stat qo&apos;shish
+                  </button>
+                </div>
+              </SectionCard>
+
+              <SectionCard title="Why Us punktlari">
+                <div className="space-y-3">
+                  {draft.whyUs.map((item, index) => (
+                    <div key={`${item}-${index}`} className="grid gap-3 md:grid-cols-[1fr_auto]">
+                      <TextInput
+                        value={item}
+                        disabled={!canEdit}
+                        onChange={(value) =>
+                          updateDraft((c) => ({
+                            ...c,
+                            whyUs: c.whyUs.map((w, i) => (i === index ? value : w))
+                          }))
+                        }
+                      />
+                      <RowActions
+                        disabled={!canEdit}
+                        onRemove={() =>
+                          updateDraft((c) => ({ ...c, whyUs: c.whyUs.filter((_, i) => i !== index) }))
+                        }
+                      />
+                    </div>
+                  ))}
+                  <button
+                    disabled={!canEdit}
+                    onClick={() => updateDraft((c) => ({ ...c, whyUs: [...c.whyUs, ""] }))}
+                    className="btn-secondary border-violet-500/35 bg-violet-500/10 px-5 py-2 disabled:opacity-50"
+                  >
+                    Punkt qo&apos;shish
+                  </button>
+                </div>
+              </SectionCard>
+            </div>
+          ) : null}
+
+          {activeTab === "about" ? (
+            <div className="grid gap-6 lg:grid-cols-2">
+              <SectionCard title="About bo'limi">
+                <div className="space-y-3">
+                  <TextInput
+                    value={draft.about.kicker}
+                    disabled={!canEdit}
+                    onChange={(value) => updateDraft((c) => ({ ...c, about: { ...c.about, kicker: value } }))}
+                  />
+                  <TextInput
+                    value={draft.about.title}
+                    disabled={!canEdit}
+                    onChange={(value) => updateDraft((c) => ({ ...c, about: { ...c.about, title: value } }))}
+                  />
+                  <TextAreaInput
+                    value={draft.about.subtitle}
+                    disabled={!canEdit}
+                    onChange={(value) => updateDraft((c) => ({ ...c, about: { ...c.about, subtitle: value } }))}
+                  />
+                  <TextAreaInput
+                    value={draft.about.mission}
+                    disabled={!canEdit}
+                    onChange={(value) => updateDraft((c) => ({ ...c, about: { ...c.about, mission: value } }))}
+                  />
+                  <TextAreaInput
+                    value={draft.about.approach}
+                    disabled={!canEdit}
+                    onChange={(value) => updateDraft((c) => ({ ...c, about: { ...c.about, approach: value } }))}
+                  />
+                  <TextAreaInput
+                    value={draft.about.promise}
+                    disabled={!canEdit}
+                    onChange={(value) => updateDraft((c) => ({ ...c, about: { ...c.about, promise: value } }))}
+                  />
+                </div>
+              </SectionCard>
+
+              <SectionCard title="Testimonials">
+                <div className="space-y-4">
+                  {draft.testimonials.map((item, index) => (
+                    <div key={`${item.name}-${index}`} className="premium-panel-soft rounded-2xl p-4">
+                      <div className="mb-3 flex items-center justify-between">
+                        <p className="text-sm font-semibold text-white">Testimonial #{index + 1}</p>
+                        <RowActions
+                          disabled={!canEdit}
+                          onRemove={() =>
+                            updateDraft((c) => ({
+                              ...c,
+                              testimonials: c.testimonials.filter((_, i) => i !== index)
+                            }))
+                          }
+                        />
+                      </div>
+                      <div className="grid gap-3">
+                        <TextInput
+                          value={item.name}
+                          disabled={!canEdit}
+                          onChange={(value) =>
+                            updateDraft((c) => ({
+                              ...c,
+                              testimonials: c.testimonials.map((t, i) =>
+                                i === index ? { ...t, name: value } : t
+                              )
+                            }))
+                          }
+                        />
+                        <TextInput
+                          value={item.role}
+                          disabled={!canEdit}
+                          onChange={(value) =>
+                            updateDraft((c) => ({
+                              ...c,
+                              testimonials: c.testimonials.map((t, i) =>
+                                i === index ? { ...t, role: value } : t
+                              )
+                            }))
+                          }
+                        />
+                        <TextAreaInput
+                          value={item.quote}
+                          disabled={!canEdit}
+                          onChange={(value) =>
+                            updateDraft((c) => ({
+                              ...c,
+                              testimonials: c.testimonials.map((t, i) =>
+                                i === index ? { ...t, quote: value } : t
+                              )
+                            }))
+                          }
+                        />
+                      </div>
+                    </div>
+                  ))}
+                  <button
+                    disabled={!canEdit}
+                    onClick={() =>
+                      updateDraft((c) => ({
+                        ...c,
+                        testimonials: [...c.testimonials, { name: "", role: "", quote: "" }]
+                      }))
+                    }
+                    className="btn-secondary border-violet-500/35 bg-violet-500/10 px-5 py-2 disabled:opacity-50"
+                  >
+                    Testimonial qo&apos;shish
+                  </button>
+                </div>
+              </SectionCard>
+            </div>
+          ) : null}
+
+          {activeTab === "navigation" ? (
+            <SectionCard title="Navigatsiya menyusi">
+              <div className="space-y-3">
+                {draft.nav.map((item, index) => (
+                  <div key={`${item.href}-${index}`} className="grid gap-3 md:grid-cols-[1fr_1fr_auto]">
+                    <TextInput
+                      value={item.label}
+                      disabled={!canEdit}
+                      onChange={(value) =>
+                        updateDraft((c) => ({
+                          ...c,
+                          nav: c.nav.map((n, i) => (i === index ? { ...n, label: value } : n))
+                        }))
+                      }
+                    />
+                    <TextInput
+                      value={item.href}
+                      disabled={!canEdit}
+                      onChange={(value) =>
+                        updateDraft((c) => ({
+                          ...c,
+                          nav: c.nav.map((n, i) => (i === index ? { ...n, href: value } : n))
+                        }))
+                      }
+                    />
+                    <RowActions
+                      disabled={!canEdit}
+                      onRemove={() =>
+                        updateDraft((c) => ({ ...c, nav: c.nav.filter((_, i) => i !== index) }))
+                      }
+                    />
+                  </div>
+                ))}
+                <button
+                  disabled={!canEdit}
+                  onClick={() => updateDraft((c) => ({ ...c, nav: [...c.nav, { label: "", href: "/" }] }))}
+                  className="btn-secondary border-violet-500/35 bg-violet-500/10 px-5 py-2 disabled:opacity-50"
+                >
+                  Menyu item qo&apos;shish
+                </button>
+              </div>
+            </SectionCard>
+          ) : null}
+
+          {activeTab === "leads" ? (
+            <SectionCard title="Leadlar" subtitle="Contact form orqali tushgan so'rovlar">
+              <div className="grid gap-3">
+                {leads.length === 0 ? <p className="text-sm text-muted">Hozircha lead yo&apos;q.</p> : null}
+                {leads.map((lead) => (
+                  <article key={lead.id} className="premium-panel-soft rounded-2xl p-4">
+                    <p className="text-base font-semibold text-white">{lead.name}</p>
+                    <div className="mt-2 grid gap-2 text-sm text-muted md:grid-cols-2">
+                      <p>Biznes: {lead.businessType}</p>
+                      <p>Xizmat: {lead.neededService}</p>
+                      <p>Budjet: {lead.budget}</p>
+                      <p>Telefon: {lead.phone}</p>
+                    </div>
+                    <p className="mt-2 text-xs text-muted">{new Date(lead.createdAt).toLocaleString()}</p>
+                  </article>
+                ))}
+              </div>
+            </SectionCard>
+          ) : null}
+
+          {activeTab === "release" ? (
+            <div className="grid gap-6 lg:grid-cols-2">
+              <SectionCard title="Publish boshqaruvi">
+                <p className="text-sm text-muted">Faqat reviewer yoki admin productionga chiqarishi mumkin.</p>
+                <div className="mt-4">
+                  <TextInput value={publishNote} onChange={setPublishNote} disabled={!canPublish} />
+                </div>
+                <button
+                  disabled={!canPublishNow}
+                  onClick={publish}
+                  className="btn-secondary mt-4 border-violet-500/35 bg-violet-500/10 disabled:opacity-50"
+                >
+                  {publishing ? "Publish..." : "Productionga chiqarish"}
+                </button>
+              </SectionCard>
+
+              <SectionCard title="Audit log">
+                <div className="max-h-[460px] space-y-3 overflow-auto pr-1">
+                  {audit.length === 0 ? <p className="text-sm text-muted">Audit ma&apos;lumoti yo&apos;q.</p> : null}
+                  {audit.map((row) => (
+                    <div key={row.id} className="premium-panel-soft rounded-xl p-3 text-sm">
+                      <p className="text-white">
+                        {row.action} - {row.actorEmail} ({row.actorRole})
+                      </p>
+                      <p className="mt-1 text-xs text-muted">{new Date(row.at).toLocaleString()}</p>
+                      <p className="mt-1 text-xs text-muted">{row.details}</p>
+                    </div>
+                  ))}
+                </div>
+              </SectionCard>
+            </div>
+          ) : null}
+
+          {status ? <div className="premium-panel-soft mt-6 rounded-xl p-3 text-sm text-muted">{status}</div> : null}
         </section>
       </div>
     </div>
   );
 }
-

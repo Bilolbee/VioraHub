@@ -3,62 +3,79 @@
 import { FormEvent, useState } from "react";
 
 export function ContactFormClient() {
-  const [status, setStatus] = useState<string>("");
+  const [status, setStatus] = useState<"idle" | "sending" | "ok" | "error">("idle");
+  const [message, setMessage] = useState("");
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    setStatus("Yuborilmoqda...");
+    setStatus("sending");
+
     const form = event.currentTarget;
     const formData = new FormData(form);
-
     const payload = Object.fromEntries(formData.entries());
+
     const response = await fetch("/api/contact", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload)
+      body: JSON.stringify(payload),
     });
 
     if (!response.ok) {
-      setStatus("Yuborishda xatolik. Iltimos, Telegram orqali yozing.");
+      setStatus("error");
+      setMessage("Yuborishda xatolik. Telegram orqali yozing.");
       return;
     }
 
     form.reset();
-    setStatus("So'rov yuborildi. Tez orada siz bilan bog'lanamiz.");
+    setStatus("ok");
+    setMessage("So'rov qabul qilindi. 24 soat ichida bog'lanamiz.");
   }
 
   return (
-    <form onSubmit={handleSubmit} className="section-shell rounded-[28px] p-6 md:p-8">
-      <p className="text-xs uppercase tracking-[0.16em] text-accentSoft">Inquiry form</p>
-      <h3 className="mt-2 text-2xl font-semibold text-white">Loyiha briefini yuboring</h3>
-      <p className="mt-2 text-sm text-muted">Jamoamiz sizga mos ijro modeli va taxminiy timeline yuboradi.</p>
+    <form onSubmit={handleSubmit} className="rounded-2xl border border-white/[0.06] bg-[#0d0d0d] p-7 md:p-9">
+      <p className="text-[10px] uppercase tracking-[0.22em] text-white/35">Brief</p>
+      <h3 className="mt-3 text-[28px] font-semibold leading-tight tracking-[-0.025em] text-white md:text-[32px]">
+        Loyiha so&apos;rovi.
+      </h3>
+      <p className="mt-3 text-[15px] leading-[1.7] text-white/45">
+        Quyidagi formani to&apos;ldiring — texnik yechim va taxminiy muddatni yuboramiz.
+      </p>
 
-      <div className="mt-6 grid gap-4 md:grid-cols-2">
-        <label className="text-sm text-muted">
-          Ism
-          <input required name="name" className="admin-input mt-2" />
-        </label>
-        <label className="text-sm text-muted">
-          Biznes turi
-          <input required name="businessType" className="admin-input mt-2" />
-        </label>
-        <label className="text-sm text-muted">
-          Kerakli xizmat
-          <input required name="neededService" className="admin-input mt-2" />
-        </label>
-        <label className="text-sm text-muted">
-          Byudjet
-          <input required name="budget" className="admin-input mt-2" />
-        </label>
-        <label className="text-sm text-muted md:col-span-2">
-          Telefon
-          <input required name="phone" className="admin-input mt-2" />
+      <div className="mt-8 grid gap-4 md:grid-cols-2">
+        {[
+          { label: "Ism", name: "name", placeholder: "Aziz" },
+          { label: "Biznes yo'nalishi", name: "businessType", placeholder: "Restoran zanjiri" },
+          { label: "Kerakli xizmat", name: "neededService", placeholder: "Telegram bot" },
+          { label: "Taxminiy budjet", name: "budget", placeholder: "$500–1500" },
+        ].map((field) => (
+          <label key={field.name} className="block">
+            <span className="block text-[11px] font-medium uppercase tracking-[0.14em] text-white/40">
+              {field.label}
+            </span>
+            <input required name={field.name} placeholder={field.placeholder} className="admin-input mt-2 normal-case tracking-normal" />
+          </label>
+        ))}
+        <label className="block md:col-span-2">
+          <span className="block text-[11px] font-medium uppercase tracking-[0.14em] text-white/40">
+            Telefon
+          </span>
+          <input required name="phone" placeholder="+998 90 ___ __ __" className="admin-input mt-2 normal-case tracking-normal" />
         </label>
       </div>
-      <button type="submit" className="btn-primary mt-6">
-        So&apos;rov yuborish
+
+      <button type="submit" disabled={status === "sending"} className="btn-primary mt-7 disabled:opacity-60" data-magnetic>
+        {status === "sending" ? "Yuborilmoqda..." : "So'rov yuborish"}
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <line x1="5" y1="12" x2="19" y2="12" />
+          <polyline points="12 5 19 12 12 19" />
+        </svg>
       </button>
-      {status ? <p className="mt-3 text-sm text-muted">{status}</p> : null}
+
+      {message && (
+        <p className={`mt-4 text-[13px] ${status === "error" ? "text-red-400/80" : "text-accent"}`}>
+          {message}
+        </p>
+      )}
     </form>
   );
 }

@@ -1,4 +1,4 @@
-# Viora Hub - Enterprise CMS Baseline
+# CTRLLAB - Enterprise CMS Baseline
 
 ## Quick Start
 

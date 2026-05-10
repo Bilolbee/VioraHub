@@ -23,7 +23,16 @@ export async function GET(request: NextRequest) {
 function isValidContent(payload: unknown): payload is SiteContent {
   if (!payload || typeof payload !== "object") return false;
   const candidate = payload as SiteContent;
-  return Array.isArray(candidate.stats) && Array.isArray(candidate.services) && Array.isArray(candidate.portfolio);
+  return (
+    Array.isArray(candidate.stats) &&
+    Array.isArray(candidate.services) &&
+    Array.isArray(candidate.portfolio) &&
+    Array.isArray(candidate.caseStudies) &&
+    !!candidate.home &&
+    Array.isArray(candidate.home.trustLogos) &&
+    Array.isArray(candidate.home.processSteps) &&
+    Array.isArray(candidate.home.faq)
+  );
 }
 
 export async function PATCH(request: NextRequest) {

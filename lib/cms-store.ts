@@ -19,6 +19,21 @@ const siteContentSchema: z.ZodType<SiteContent> = z.object({
     primaryCta: shortText,
     secondaryCta: shortText
   }),
+  home: z.object({
+    trustLogos: z.array(shortText).max(36),
+    processSteps: z.array(
+      z.object({
+        title: shortText,
+        detail: mediumText
+      })
+    ).max(24),
+    faq: z.array(
+      z.object({
+        question: mediumText,
+        answer: longText
+      })
+    ).max(36)
+  }),
   stats: z.array(
     z.object({
       label: shortText,
@@ -29,17 +44,31 @@ const siteContentSchema: z.ZodType<SiteContent> = z.object({
   services: z.array(
     z.object({
       title: shortText,
-      description: longText
+      description: longText,
+      outcome: mediumText,
+      deliverables: z.array(shortText).max(12)
     })
   ).max(48),
   portfolio: z.array(
     z.object({
       name: shortText,
       category: shortText,
+      challenge: longText,
+      solution: longText,
       result: longText,
       tools: mediumText
     })
   ).max(96),
+  caseStudies: z.array(
+    z.object({
+      client: shortText,
+      industry: shortText,
+      challenge: longText,
+      solution: longText,
+      result: longText,
+      timeline: shortText
+    })
+  ).max(48),
   whyUs: z.array(shortText).max(24),
   about: z.object({
     kicker: shortText,
@@ -92,7 +121,84 @@ async function ensureSnapshot(environment: Environment) {
 }
 
 function toSiteContent(raw: unknown): SiteContent {
-  const parsed = siteContentSchema.safeParse(raw);
+  const merged = {
+    ...defaultContent,
+    ...(raw && typeof raw === "object" ? raw : {}),
+    hero: {
+      ...defaultContent.hero,
+      ...(raw && typeof raw === "object" && "hero" in raw && typeof (raw as { hero?: unknown }).hero === "object"
+        ? ((raw as { hero?: Record<string, unknown> }).hero ?? {})
+        : {})
+    },
+    home: {
+      ...defaultContent.home,
+      ...(raw && typeof raw === "object" && "home" in raw && typeof (raw as { home?: unknown }).home === "object"
+        ? ((raw as { home?: Record<string, unknown> }).home ?? {})
+        : {})
+    },
+    about: {
+      ...defaultContent.about,
+      ...(raw && typeof raw === "object" && "about" in raw && typeof (raw as { about?: unknown }).about === "object"
+        ? ((raw as { about?: Record<string, unknown> }).about ?? {})
+        : {})
+    },
+    contact: {
+      ...defaultContent.contact,
+      ...(raw && typeof raw === "object" && "contact" in raw && typeof (raw as { contact?: unknown }).contact === "object"
+        ? ((raw as { contact?: Record<string, unknown> }).contact ?? {})
+        : {})
+    },
+    seo: {
+      ...defaultContent.seo,
+      ...(raw && typeof raw === "object" && "seo" in raw && typeof (raw as { seo?: unknown }).seo === "object"
+        ? ((raw as { seo?: Record<string, unknown> }).seo ?? {})
+        : {})
+    }
+  };
+
+  if (Array.isArray(merged.services)) {
+    merged.services = merged.services.map((item) => {
+      const service = item as Partial<SiteContent["services"][number]>;
+      return {
+        title: String(service.title ?? ""),
+        description: String(service.description ?? ""),
+        outcome: String(service.outcome ?? service.description ?? ""),
+        deliverables: Array.isArray(service.deliverables)
+          ? service.deliverables.map((row) => String(row)).filter(Boolean)
+          : []
+      };
+    });
+  }
+
+  if (Array.isArray(merged.portfolio)) {
+    merged.portfolio = merged.portfolio.map((item) => {
+      const row = item as Partial<SiteContent["portfolio"][number]>;
+      return {
+        name: String(row.name ?? ""),
+        category: String(row.category ?? ""),
+        challenge: String(row.challenge ?? row.result ?? ""),
+        solution: String(row.solution ?? row.tools ?? ""),
+        result: String(row.result ?? ""),
+        tools: String(row.tools ?? "")
+      };
+    });
+  }
+
+  if (Array.isArray(merged.caseStudies)) {
+    merged.caseStudies = merged.caseStudies.map((item) => {
+      const row = item as Partial<SiteContent["caseStudies"][number]>;
+      return {
+        client: String(row.client ?? ""),
+        industry: String(row.industry ?? ""),
+        challenge: String(row.challenge ?? ""),
+        solution: String(row.solution ?? ""),
+        result: String(row.result ?? ""),
+        timeline: String(row.timeline ?? "")
+      };
+    });
+  }
+
+  const parsed = siteContentSchema.safeParse(merged);
   if (!parsed.success) return defaultContent;
   return parsed.data;
 }

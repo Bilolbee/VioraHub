@@ -32,12 +32,12 @@ async function ensureSnapshot(environment: Environment) {
 }
 
 async function main() {
-  const adminEmail = process.env.ADMIN_EMAIL || "admin@viorahub.com";
+  const adminEmail = process.env.ADMIN_EMAIL || "admin@ctrllab.com";
   const adminLogin = process.env.ADMIN_LOGIN || "Bilol";
   const adminPassword = process.env.ADMIN_PASSWORD || "666";
-  const editorEmail = process.env.EDITOR_EMAIL || "editor@viorahub.com";
+  const editorEmail = process.env.EDITOR_EMAIL || "editor@ctrllab.com";
   const editorPassword = process.env.EDITOR_PASSWORD || "ChangeMe123!";
-  const reviewerEmail = process.env.REVIEWER_EMAIL || "reviewer@viorahub.com";
+  const reviewerEmail = process.env.REVIEWER_EMAIL || "reviewer@ctrllab.com";
   const reviewerPassword = process.env.REVIEWER_PASSWORD || "ChangeMe123!";
 
   if (process.env.NODE_ENV === "production" && adminPassword === "666") {

@@ -1,4 +1,4 @@
-# VioraHub WOW Figma Blueprint (UZ)
+# CTRLLAB WOW Figma Blueprint (UZ)
 
 ## Frame Set
 - Desktop: 1440 x Auto
